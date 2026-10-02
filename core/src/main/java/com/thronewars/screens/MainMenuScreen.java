@@ -1,5 +1,7 @@
 package com.thronewars.screens;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -8,18 +10,18 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.thronewars.Main;
+import com.thronewars.GdxGame;
 
 public class MainMenuScreen implements Screen {
 
 	private final Viewport viewport = new ScreenViewport();
 	private final GlyphLayout layout = new GlyphLayout();
 	
-	private final Main game;
+	private final GdxGame game;
 	private final Batch batch;
 	private final BitmapFont font;
 	
-	public MainMenuScreen(Main game) {
+	public MainMenuScreen(GdxGame game) {
 		this.game = game;
 		this.batch = game.getBatch();
 		this.font = game.getFont();
@@ -39,7 +41,11 @@ public class MainMenuScreen implements Screen {
 	}
 
 	private void input() {
-
+		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			game.setScreen(new GameScreen(game));
+			dispose();
+			return;
+		}
 	}
 
 	private void update(float delta) {
