@@ -16,7 +16,7 @@ public class GameScreen implements Screen {
 	private static final float WORLD_WIDTH = 16f;
 	private static final float WORLD_HEIGHT = 9f;
 	
-	private final Viewport viewport = new ExtendViewport(WORLD_WIDTH, WORLD_HEIGHT);
+	private final Viewport gameViewport = new ExtendViewport(WORLD_WIDTH, WORLD_HEIGHT);
 	
 	private final GdxGame game;
 	private final Batch batch;
@@ -57,8 +57,8 @@ public class GameScreen implements Screen {
 
 	private void draw() {
 		ScreenUtils.clear(Color.BLACK);
-		viewport.apply();
-		batch.setProjectionMatrix(viewport.getCamera().combined);
+		gameViewport.apply();
+		batch.setProjectionMatrix(gameViewport.getCamera().combined);
 		batch.begin();
 
 		drawBackground();
@@ -70,8 +70,8 @@ public class GameScreen implements Screen {
 	 * Draws the background texture to fill the entire viewport.
 	 */
 	private void drawBackground() {
-		float worldWidth = viewport.getWorldWidth();
-	    float worldHeight = viewport.getWorldHeight();
+		float worldWidth = gameViewport.getWorldWidth();
+	    float worldHeight = gameViewport.getWorldHeight();
 	    // Calculate the horizontal texture coordinate based on the world and texture width
 		float u2 = worldWidth / WORLD_WIDTH;
 		
@@ -86,7 +86,7 @@ public class GameScreen implements Screen {
 	
 	@Override
 	public void resize(int width, int height) {
-		viewport.update(width, height, true);
+		gameViewport.update(width, height, true);
 	}
 
 	@Override

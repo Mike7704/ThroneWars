@@ -14,7 +14,7 @@ import com.thronewars.GdxGame;
 
 public class MainMenuScreen implements Screen {
 
-	private final Viewport viewport = new ScreenViewport();
+	private final Viewport mainMenuViewport = new ScreenViewport();
 	private final GlyphLayout layout = new GlyphLayout();
 	
 	private final GdxGame game;
@@ -54,12 +54,12 @@ public class MainMenuScreen implements Screen {
 
 	private void draw() {
 		ScreenUtils.clear(Color.BLACK);
-		viewport.apply();
-		batch.setProjectionMatrix(viewport.getCamera().combined);
+		mainMenuViewport.apply();
+		batch.setProjectionMatrix(mainMenuViewport.getCamera().combined);
 		batch.begin();
 		
-		float centerX = (viewport.getWorldWidth() / 2) - (layout.width / 2);
-		float centerY = (viewport.getWorldHeight() / 2) + (layout.height / 2);
+		float centerX = (mainMenuViewport.getWorldWidth() / 2) - (layout.width / 2);
+		float centerY = (mainMenuViewport.getWorldHeight() / 2) + (layout.height / 2);
 		
 		layout.setText(font, "Throne Wars");
 		font.draw(batch, layout, centerX, centerY);
@@ -69,7 +69,7 @@ public class MainMenuScreen implements Screen {
 	
 	@Override
 	public void resize(int width, int height) {
-		viewport.update(width, height, true);
+		mainMenuViewport.update(width, height, true);
 	}
 
 	@Override
