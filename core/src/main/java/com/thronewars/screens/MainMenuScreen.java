@@ -4,40 +4,83 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.thronewars.GdxGame;
+import com.thronewars.ui.components.TWButton;
 
+/**
+ * Main menu screen for the game.
+ */
 public class MainMenuScreen implements Screen {
 
-	private final Viewport mainMenuViewport = new ScreenViewport();
-	private final GlyphLayout layout = new GlyphLayout();
-	
+	private final Stage mainMenuStage;
 	private final GdxGame game;
-	private final Batch batch;
-	private final BitmapFont font;
 	
 	public MainMenuScreen(GdxGame game) {
 		this.game = game;
-		this.batch = game.getBatch();
-		this.font = game.getFont();
+		
+		mainMenuStage = new Stage(new ScreenViewport());
+		
+		createMainMenu();
+	}
+	
+	private void createMainMenu() {
+		Table table = new Table();
+		table.setFillParent(true);
+		
+		float width = 240f;
+		float height = 60f;
+		
+		TWButton playButton = new TWButton("Play", width, height, game);
+		TWButton settingsButton = new TWButton("Settings", width, height, game);
+		TWButton exitButton = new TWButton("Exit", width, height, game);
+		
+		playButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				game.setScreen(new GameScreen(game));
+				Gdx.app.postRunnable(MainMenuScreen.this::dispose);
+			}
+		});
+		
+		settingsButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				System.out.println("Settings Button");
+			}
+		});
+		
+		exitButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				Gdx.app.exit();
+			}
+		});
+		
+		table.add(playButton).width(width).height(height).pad(10f);
+		table.row();
+		table.add(settingsButton).width(width).height(height).pad(10f);
+		table.row();
+		table.add(exitButton).width(width).height(height).pad(10f);
+		
+		mainMenuStage.addActor(table);
 	}
 	
 	@Override
 	public void show() {
-		// TODO Auto-generated method stub
-		
+		Gdx.input.setInputProcessor(mainMenuStage);
 	}
 
 	@Override
 	public void render(float delta) {
 		input();
 		update(delta);
-		draw();
+		draw(delta);
 	}
 
 	private void input() {
@@ -52,24 +95,16 @@ public class MainMenuScreen implements Screen {
 
 	}
 
-	private void draw() {
+	private void draw(float delta) {
 		ScreenUtils.clear(Color.BLACK);
-		mainMenuViewport.apply();
-		batch.setProjectionMatrix(mainMenuViewport.getCamera().combined);
-		batch.begin();
 		
-		float centerX = (mainMenuViewport.getWorldWidth() / 2) - (layout.width / 2);
-		float centerY = (mainMenuViewport.getWorldHeight() / 2) + (layout.height / 2);
-		
-		layout.setText(font, "Throne Wars");
-		font.draw(batch, layout, centerX, centerY);
-		
-		batch.end();
+		mainMenuStage.act(delta);
+		mainMenuStage.draw();
 	}
 	
 	@Override
 	public void resize(int width, int height) {
-		mainMenuViewport.update(width, height, true);
+		mainMenuStage.getViewport().update(width, height, true);
 	}
 
 	@Override
@@ -92,8 +127,7 @@ public class MainMenuScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
+		mainMenuStage.dispose();
 	}
 
 }

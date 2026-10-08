@@ -11,6 +11,9 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.thronewars.GdxGame;
 
+/**
+ * Game screen for the game.
+ */
 public class GameScreen implements Screen {
 
 	private static final float WORLD_WIDTH = 16f;
