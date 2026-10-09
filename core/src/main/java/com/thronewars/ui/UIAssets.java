@@ -13,22 +13,44 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
  */
 public class UIAssets {
 
+	private static UIAssets instance;
+	
 	private final TextureAtlas atlas;
-	private BitmapFont font;
+	private final BitmapFont font;
+	
+	private final TextureRegion buttonTexture;
+    private final TextureRegion buttonHoverTexture;
+    private final TextureRegion buttonPressedTexture;
 	
 	public UIAssets() {
+		if (instance != null) {
+			throw new IllegalStateException("UIAssets has already been initialized.");
+		}
+		
+		instance = this;
+		
 		atlas = new TextureAtlas("textures/ui/throne-wars-ui.atlas");
 		
-	   	loadFont();
+	   	font = loadFont();
+	   	
+	   	buttonTexture = atlas.findRegion("button");
+        buttonHoverTexture = atlas.findRegion("button-down");
+        buttonPressedTexture = atlas.findRegion("button-down");
 	}
 	
-	private void loadFont() {
+	private BitmapFont loadFont() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/CinzelDecorative-Bold.otf"));
-    	FreeTypeFontParameter fontParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
-    	fontParams.size = 24;
-    	fontParams.color = Color.WHITE;
-    	font = generator.generateFont(fontParams);
-    	generator.dispose();
+
+		try {
+			FreeTypeFontParameter params = new FreeTypeFontParameter();
+			params.size = 24;
+			params.color = Color.WHITE;
+
+			return generator.generateFont(params);
+		}
+		finally {
+			generator.dispose();
+		}
 	}
 
 	public BitmapFont getFont() {
@@ -36,29 +58,25 @@ public class UIAssets {
 	}
 	
 	public TextureRegion getButton() {
-		return atlas.findRegion("button");
-	}
+        return buttonTexture;
+    }
 
-	public TextureRegion getButtonDown() {
-		return atlas.findRegion("button-down");
-	}
+    public TextureRegion getButtonHover() {
+        return buttonHoverTexture;
+    }
 
-	public TextureRegion getButtonFancy() {
-		return atlas.findRegion("button-fancy");
-	}
+    public TextureRegion getButtonPressed() {
+        return buttonPressedTexture;
+    }
 
-	public TextureRegion getButtonSmall() {
-		return atlas.findRegion("button-small");
-	}
+	public static UIAssets getInstance() {
+		if (instance == null) {
+			throw new IllegalStateException("UIAssets must be initialized before creating UI components.");
+		}
 
-	public TextureRegion getButtonSmallDown() {
-		return atlas.findRegion("button-small-down");
+		return instance;
 	}
-	
-	public TextureRegion getButtonSmallFancy() {
-		return atlas.findRegion("button-small-fancy");
-	}
-
+    
 	public void dispose() {
 		atlas.dispose();
 		font.dispose();

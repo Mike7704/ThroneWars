@@ -1,13 +1,10 @@
 package com.thronewars.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thronewars.GdxGame;
@@ -36,31 +33,18 @@ public class MainMenuScreen implements Screen {
 		float width = 240f;
 		float height = 60f;
 		
-		TWButton playButton = new TWButton("Play", width, height, game);
-		TWButton settingsButton = new TWButton("Settings", width, height, game);
-		TWButton exitButton = new TWButton("Exit", width, height, game);
+		TWButton playButton = new TWButton("Play", width, height);
+		TWButton settingsButton = new TWButton("Settings", width, height);
+		TWButton exitButton = new TWButton("Exit", width, height);
 		
-		playButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				game.setScreen(new GameScreen(game));
-				Gdx.app.postRunnable(MainMenuScreen.this::dispose);
-			}
+		playButton.setOnClick(() -> {
+		    game.setScreen(new GameScreen(game));
+		    Gdx.app.postRunnable(MainMenuScreen.this::dispose);
 		});
 		
-		settingsButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				System.out.println("Settings Button");
-			}
-		});
+		settingsButton.setOnClick(() -> System.out.println("Settings Button"));
 		
-		exitButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				Gdx.app.exit();
-			}
-		});
+		exitButton.setOnClick(() -> Gdx.app.exit());
 		
 		table.add(playButton).width(width).height(height).pad(10f);
 		table.row();
@@ -84,11 +68,7 @@ public class MainMenuScreen implements Screen {
 	}
 
 	private void input() {
-		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-			game.setScreen(new GameScreen(game));
-			dispose();
-			return;
-		}
+
 	}
 
 	private void update(float delta) {
