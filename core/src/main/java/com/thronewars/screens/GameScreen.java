@@ -2,41 +2,33 @@ package com.thronewars.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
+import com.thronewars.managers.ScreenManager;
 
 /**
- * Game screen for the game.
+ * Screen to display the main game view.
  */
-public class GameScreen implements Screen {
+public class GameScreen extends ScreenAdapter {
 
-	private static final float WORLD_WIDTH = 16f;
-	private static final float WORLD_HEIGHT = 9f;
-	
-	private final Viewport gameViewport = new ExtendViewport(WORLD_WIDTH, WORLD_HEIGHT);
-	
 	private final GdxGame game;
-	private final Batch batch;
-	
-	private final Texture backgroundTexture = new Texture(Gdx.files.internal("textures/environment/winter/3.png"));
-	
+	private final SpriteBatch batch;
+	private final FitViewport gameViewport;
+
+	private final Texture backgroundTexture;
+
 	public GameScreen(GdxGame game) {
 		this.game = game;
 		this.batch = game.getBatch();
-		
-		backgroundTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
-	}
-	
-	@Override
-	public void show() {
-		// TODO Auto-generated method stub
-		
+
+		gameViewport = new FitViewport(ScreenManager.GAME_WIDTH, ScreenManager.GAME_HEIGHT);
+
+		backgroundTexture = game.getGameAssets().getGameBackground();
 	}
 
 	@Override
@@ -45,74 +37,45 @@ public class GameScreen implements Screen {
 		update(delta);
 		draw();
 	}
-	
+
 	private void input() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-			game.setScreen(new MainMenuScreen(game));
-			dispose();
-			return;
+			game.getScreenManager().showScreen(new MainMenuScreen(game));
 		}
 	}
 
 	private void update(float delta) {
-
+		// Game logic
 	}
 
 	private void draw() {
 		ScreenUtils.clear(Color.BLACK);
+
 		gameViewport.apply();
+
 		batch.setProjectionMatrix(gameViewport.getCamera().combined);
+
 		batch.begin();
 
 		drawBackground();
-		
+
 		batch.end();
 	}
-	
+
 	/**
-	 * Draws the background texture to fill the entire viewport.
+	 * Draws the background texture, scaling it to fit the viewport while maintaining its aspect ratio.
 	 */
 	private void drawBackground() {
 		float worldWidth = gameViewport.getWorldWidth();
-	    float worldHeight = gameViewport.getWorldHeight();
-	    // Calculate the horizontal texture coordinate based on the world and texture width
-		float u2 = worldWidth / WORLD_WIDTH;
-		
-		batch.draw(
-		    backgroundTexture,
-		    0, 0,
-		    worldWidth, worldHeight,
-		    0, 1,
-		    u2, 0
-		);
+		float worldHeight = gameViewport.getWorldHeight();
+
+		float u2 = worldWidth / ScreenManager.GAME_WIDTH;
+
+		batch.draw(backgroundTexture, 0f, 0f, worldWidth, worldHeight, 0f, 1f, u2, 0f);
 	}
-	
+
 	@Override
 	public void resize(int width, int height) {
 		gameViewport.update(width, height, true);
 	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void dispose() {
-		backgroundTexture.dispose();		
-	}
-
 }
