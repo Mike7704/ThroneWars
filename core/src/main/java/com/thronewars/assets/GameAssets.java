@@ -17,8 +17,13 @@ public class GameAssets {
 
 	private static final String UI_ATLAS = "textures/ui/throne-wars-ui.atlas";
 
-	private static final String UI_FONT = "fonts/CinzelDecorative-Bold.otf";
-	private static final int UI_FONT_SIZE = 24;
+	private static final String UI_FONT_FILE = "fonts/Cinzel-Bold.otf";
+	private static final String UI_FONT_SMALL = "generated/cinzel-small.otf";
+	private static final String UI_FONT_MEDIUM = "generated/cinzel-medium.otf";
+	private static final String UI_FONT_LARGE = "generated/cinzel-large.otf";
+	private static final int UI_FONT_SIZE_SMALL = 20;
+	private static final int UI_FONT_SIZE_MEDIUM = 40;
+	private static final int UI_FONT_SIZE_LARGE = 60;
 	
 	private static final String GAME_BACKGROUND_WINTER = "textures/environment/winter/3.png";
 
@@ -55,13 +60,10 @@ public class GameAssets {
 		// Queue the UI atlas
 		assetManager.load(UI_ATLAS, TextureAtlas.class);
 
-		// Queue a BitmapFont generated from the OTF file
-		FreeTypeFontLoaderParameter fontParams = new FreeTypeFontLoaderParameter();
-
-		fontParams.fontFileName = UI_FONT;
-		fontParams.fontParameters.size = UI_FONT_SIZE;
-
-		assetManager.load(UI_FONT, BitmapFont.class, fontParams);
+		// Load all fonts
+		loadFont(UI_FONT_SMALL, UI_FONT_SIZE_SMALL);
+		loadFont(UI_FONT_MEDIUM, UI_FONT_SIZE_MEDIUM);
+		loadFont(UI_FONT_LARGE, UI_FONT_SIZE_LARGE);
 
 		// Queue the game background
 		assetManager.load(GAME_BACKGROUND_WINTER, Texture.class);
@@ -76,12 +78,37 @@ public class GameAssets {
 		loaded = true;
 	}
 
+	/**
+	 * Loads a font with the specified file name and size.
+	 *
+	 * @param assetKey The key to identify the font in the AssetManager.
+	 * @param size The desired font size.
+	 */
+	private void loadFont(String assetKey, int size) {
+		FreeTypeFontLoaderParameter fontParams = new FreeTypeFontLoaderParameter();
+
+		fontParams.fontFileName = UI_FONT_FILE;
+		fontParams.fontParameters.size = size;
+		fontParams.fontParameters.minFilter = Texture.TextureFilter.Linear;
+		fontParams.fontParameters.magFilter = Texture.TextureFilter.Linear;
+		
+		assetManager.load(assetKey, BitmapFont.class, fontParams);
+	}
+	
 	public TextureAtlas getUIAtlas() {
 		return assetManager.get(UI_ATLAS, TextureAtlas.class);
 	}
 
-	public BitmapFont getUIFont() {
-		return assetManager.get(UI_FONT, BitmapFont.class);
+	public BitmapFont getSmallFont() {
+	    return assetManager.get(UI_FONT_SMALL, BitmapFont.class);
+	}
+
+	public BitmapFont getMediumFont() {
+	    return assetManager.get(UI_FONT_MEDIUM, BitmapFont.class);
+	}
+
+	public BitmapFont getLargeFont() {
+	    return assetManager.get(UI_FONT_LARGE, BitmapFont.class);
 	}
 
 	public Texture getGameBackground() {

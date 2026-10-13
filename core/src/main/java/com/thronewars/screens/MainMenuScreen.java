@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
 import com.thronewars.managers.ScreenManager;
+import com.thronewars.managers.UIManager;
 import com.thronewars.ui.components.TWButton;
 import com.thronewars.ui.components.TWLabel;
 
@@ -34,13 +35,13 @@ public class MainMenuScreen extends ScreenAdapter {
 	 * Creates the main menu UI elements and adds them to the stage.
 	 */
 	private void createMainMenu() {
+		UIManager uiManager = game.getUIManager();
+		
 		Table table = new Table();
 		table.setFillParent(true);
 		table.center();
 
-		TWLabel title = new TWLabel("THRONE WARS", game.getUIManager());
-
-		title.setFontScale(2.5f);
+		TWLabel title = new TWLabel("THRONE WARS", uiManager.getLabelLargeStyle());
 
 		table.add(title).padBottom(50f);
 		table.row();
@@ -49,11 +50,11 @@ public class MainMenuScreen extends ScreenAdapter {
 		float buttonHeight = 80f;
 		float buttonPadding = 12f;
 		
-		TWButton playButton = new TWButton("Play", buttonWidth, buttonHeight, game.getUIManager());
+		TWButton playButton = new TWButton("Play", uiManager.getButtonStyle());
 
-		TWButton settingsButton = new TWButton("Settings", buttonWidth, buttonHeight, game.getUIManager());
+		TWButton settingsButton = new TWButton("Settings", uiManager.getButtonStyle());
 
-		TWButton exitButton = new TWButton("Exit", buttonWidth, buttonHeight, game.getUIManager());
+		TWButton exitButton = new TWButton("Exit", uiManager.getButtonStyle());
 
 		playButton.setOnClick(() -> game.getScreenManager().showScreen(new GameScreen(game)));
 
@@ -70,6 +71,8 @@ public class MainMenuScreen extends ScreenAdapter {
 		table.add(exitButton).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
 		stage.addActor(table);
+		
+		//stage.setDebugAll(true);
 	}
 
 	@Override
