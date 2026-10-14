@@ -1,8 +1,14 @@
 package com.thronewars.managers;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.thronewars.GdxGame;
+import com.thronewars.screens.GameScreen;
+import com.thronewars.screens.MainMenuScreen;
+import com.thronewars.screens.SettingsMenuScreen;
 
 /**
  * Manages the switching of screens in the game.
@@ -13,44 +19,66 @@ public class ScreenManager {
 	public static final float GAME_HEIGHT = 1080f;
 	
 	private final GdxGame game;
-	private Screen currentScreen;
+	private final Map<ScreenType, Screen> screens = new EnumMap<>(ScreenType.class);
+	private ScreenType currentScreenType;
 
 	public ScreenManager(GdxGame game) {
 		this.game = game;
+		
+		// Initialise screens
+		screens.put(ScreenType.MAIN_MENU, new MainMenuScreen(game));
+		screens.put(ScreenType.SETTINGS_MENU, new SettingsMenuScreen(game));
+		screens.put(ScreenType.GAME, new GameScreen(game));
 	}
 
 	/**
 	 * Shows the specified screen.
-	 * @param nextScreen The screen to show.
+	 * 
+	 * @param type The type of screen to show.
 	 */
-	public void showScreen(Screen nextScreen) {
-		if (nextScreen == null) {
-			throw new IllegalArgumentException("The next screen cannot be null.");
+	public void showScreen(ScreenType type) {
+		if (type == null) {
+			throw new IllegalArgumentException("The screen type cannot be null.");
 		}
-		// Switch screens on the main rendering thread
-		Gdx.app.postRunnable(() -> switchScreen(nextScreen));
-	}
 
+		Gdx.app.postRunnable(() -> {
+			if (type == currentScreenType) {
+				return;
+			}
+
+			Screen nextScreen = screens.get(type);
+
+			if (nextScreen == null) {
+				throw new IllegalStateException("No screen registered for type: " + type);
+			}
+
+		    game.setScreen(nextScreen);
+			currentScreenType = type;
+		});
+	}
+	
 	/**
-	 * Switches the current screen to the next screen and disposes of the previous screen.
-	 * @param nextScreen The screen to switch to.
+	 * Returns the current screen being displayed.
+	 * 
+	 * @return The current screen.
 	 */
-	private void switchScreen(Screen nextScreen) {
-		if (nextScreen == currentScreen) {
-			return;
-		}
-
-		Screen previousScreen = currentScreen;
-		
-		game.setScreen(nextScreen);
-		currentScreen = nextScreen;
-
-		if (previousScreen != null) {
-			previousScreen.dispose();
-		}
-	}
-
 	public Screen getCurrentScreen() {
-		return currentScreen;
+		if (currentScreenType == null) {
+			throw new IllegalStateException("Current screen type is not set.");
+		}
+		
+		return screens.get(currentScreenType);
+	}
+	
+	/**
+	 * Disposes all cached screens when the manager is shut down.
+	 */
+	public void dispose() {
+		for (Screen screen : screens.values()) {
+			screen.dispose();
+		}
+
+		screens.clear();
+		currentScreenType = null;
 	}
 }

@@ -1,42 +1,26 @@
 package com.thronewars.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
-import com.thronewars.managers.ScreenManager;
-import com.thronewars.managers.UIManager;
+import com.thronewars.managers.ScreenType;
 import com.thronewars.ui.components.TWButton;
 import com.thronewars.ui.components.TWLabel;
 
 /**
  * Screen to display the main menu of the game.
  */
-public class MainMenuScreen extends ScreenAdapter {
-
-	private final GdxGame game;
-	private final Stage stage;
+public class MainMenuScreen extends BaseMenuScreen {
 
 	public MainMenuScreen(GdxGame game) {
-		this.game = game;
-
-		FitViewport uiViewport = new FitViewport(ScreenManager.GAME_WIDTH, ScreenManager.GAME_HEIGHT);
-
-		stage = new Stage(uiViewport, game.getBatch());
-
+		super(game);
 		createMainMenu();
 	}
 
 	/**
 	 * Creates the main menu UI elements and adds them to the stage.
 	 */
-	private void createMainMenu() {
-		UIManager uiManager = game.getUIManager();
-		
+	private void createMainMenu() {		
 		Table table = new Table();
 		table.setFillParent(true);
 		table.center();
@@ -56,9 +40,9 @@ public class MainMenuScreen extends ScreenAdapter {
 
 		TWButton exitButton = new TWButton("Exit", uiManager.getButtonStyle());
 
-		playButton.setOnClick(() -> game.getScreenManager().showScreen(new GameScreen(game)));
+		playButton.setOnClick(() -> game.getScreenManager().showScreen(ScreenType.GAME));
 
-		settingsButton.setOnClick(() -> System.out.println("Settings Button"));
+		settingsButton.setOnClick(() -> game.getScreenManager().showScreen(ScreenType.SETTINGS_MENU));
 
 		exitButton.setOnClick(() -> Gdx.app.exit());
 
@@ -71,39 +55,5 @@ public class MainMenuScreen extends ScreenAdapter {
 		table.add(exitButton).width(buttonWidth).height(buttonHeight).pad(buttonPadding);
 
 		stage.addActor(table);
-		
-		//stage.setDebugAll(true);
-	}
-
-	@Override
-	public void show() {
-		Gdx.input.setInputProcessor(stage);
-	}
-
-	@Override
-	public void render(float delta) {
-		ScreenUtils.clear(Color.BLACK);
-
-		stage.act(delta);
-		stage.draw();
-	}
-
-	@Override
-	public void resize(int width, int height) {
-		stage.getViewport().update(width, height, true);
-	}
-
-	@Override
-	public void hide() {
-		// Do not clear another screen's input processor.
-		if (Gdx.input.getInputProcessor() == stage) {
-			Gdx.input.setInputProcessor(null);
-		}
-	}
-
-	@Override
-	public void dispose() {
-		// Disposes the Stage, not the shared game batch.
-		stage.dispose();
 	}
 }

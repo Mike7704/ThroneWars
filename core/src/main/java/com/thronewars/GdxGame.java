@@ -4,8 +4,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thronewars.assets.GameAssets;
 import com.thronewars.managers.ScreenManager;
+import com.thronewars.managers.ScreenType;
 import com.thronewars.managers.UIManager;
-import com.thronewars.screens.MainMenuScreen;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
@@ -28,7 +28,7 @@ public class GdxGame extends Game {
 		uiManager = new UIManager(gameAssets);
 		screenManager = new ScreenManager(this);
 
-		screenManager.showScreen(new MainMenuScreen(this));
+		screenManager.showScreen(ScreenType.MAIN_MENU);
 	}
 
 	public SpriteBatch getBatch() {
@@ -49,9 +49,12 @@ public class GdxGame extends Game {
 
 	@Override
 	public void dispose() {
-		// Dispose the active screen
+		if (screenManager != null) {
+			screenManager.dispose();
+		}
+		
 		super.dispose();
-
+		
 		if (gameAssets != null) {
 			gameAssets.dispose();
 		}

@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
 import com.thronewars.managers.ScreenManager;
+import com.thronewars.managers.ScreenType;
 
 /**
  * Screen to display the main game view.
@@ -40,7 +41,7 @@ public class GameScreen extends ScreenAdapter {
 
 	private void input() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-			game.getScreenManager().showScreen(new MainMenuScreen(game));
+			game.getScreenManager().showScreen(ScreenType.MAIN_MENU);
 		}
 	}
 
