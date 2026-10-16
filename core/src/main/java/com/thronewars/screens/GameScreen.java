@@ -6,9 +6,12 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
+import com.thronewars.entities.Entity;
+import com.thronewars.entities.EntityFactory;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
 
@@ -22,7 +25,9 @@ public class GameScreen extends ScreenAdapter {
 	private final FitViewport gameViewport;
 
 	private final Texture backgroundTexture;
-
+	
+	private final Array<Entity> entities = new Array<>();
+	
 	public GameScreen(GdxGame game) {
 		this.game = game;
 		this.batch = game.getBatch();
@@ -30,6 +35,17 @@ public class GameScreen extends ScreenAdapter {
 		gameViewport = new FitViewport(ScreenManager.GAME_WIDTH, ScreenManager.GAME_HEIGHT);
 
 		backgroundTexture = game.getGameAssets().getGameBackground();
+		
+		addEntities();
+	}
+	
+	/**
+	 * Adds game entities.
+	 */
+	private void addEntities() {
+		EntityFactory entityFactory = new EntityFactory(game);
+
+	    entities.add(entityFactory.createJonSnow(200f, 100f));
 	}
 
 	@Override
@@ -46,7 +62,10 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	private void update(float delta) {
-		// Game logic
+		// Entities
+		for (Entity entity : entities) {
+		    entity.update(delta);
+		}
 	}
 
 	private void draw() {
@@ -60,6 +79,11 @@ public class GameScreen extends ScreenAdapter {
 
 		drawBackground();
 
+		// Entities
+		for (Entity entity : entities) {
+		    entity.render(batch);
+		}
+		
 		batch.end();
 	}
 

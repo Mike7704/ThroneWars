@@ -27,6 +27,9 @@ public class GameAssets {
 	
 	private static final String GAME_BACKGROUND_WINTER = "textures/environment/winter/3.png";
 
+	// Unit images
+	private static final String JON_SNOW_IDLE = "textures/units/jon-snow/idle.png";
+	
 	private final AssetManager assetManager;
 
 	private boolean loaded;
@@ -67,7 +70,10 @@ public class GameAssets {
 
 		// Queue the game background
 		assetManager.load(GAME_BACKGROUND_WINTER, Texture.class);
-
+		
+		// Load the unit images
+		assetManager.load(JON_SNOW_IDLE, Texture.class);
+		
 		// Complete the initial load before screens use the assets
 		assetManager.finishLoading();
 
@@ -115,6 +121,10 @@ public class GameAssets {
 		return assetManager.get(GAME_BACKGROUND_WINTER, Texture.class);
 	}
 
+	public Texture getJonSnowIdle() {
+	    return assetManager.get(JON_SNOW_IDLE, Texture.class);
+	}
+	
 	/**
 	 * Updates the AssetManager's loading process.
 	 *
