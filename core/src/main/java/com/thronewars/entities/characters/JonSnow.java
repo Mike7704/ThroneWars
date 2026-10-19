@@ -1,7 +1,11 @@
-package com.thronewars.entities;
+package com.thronewars.entities.characters;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.thronewars.assets.CharacterAnimation;
 import com.thronewars.assets.CharacterAssets;
+import com.thronewars.entities.Entity;
+import com.thronewars.entities.EntityType;
 
 /**
  * Represents Jon Snow entity in the game.
@@ -26,6 +30,8 @@ public class JonSnow extends Entity {
 
     @Override
     public void render(SpriteBatch batch) {
-        batch.draw(characterAssets.getIdleFrame(2), x, y, width, height);
+		TextureRegion frame = characterAssets.getFrame(CharacterAnimation.IDLE, direction, stateTime);
+    	
+        batch.draw(frame, x, y, width, height);
     }
 }

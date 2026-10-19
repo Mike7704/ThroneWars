@@ -1,23 +1,133 @@
+
 package com.thronewars.assets;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.thronewars.entities.Direction;
 
 /**
- * Converts a sprite sheet into individual frames.
+ * Splits the character's sprite sheets into individual frames and organises them by direction.
  */
 public class CharacterAssets {
 
-	private final TextureRegion[] idleFrames;
+    private static final int FRAME_WIDTH = 64;
+    private static final int FRAME_HEIGHT = 64;
+    private static final int DIRECTION_COUNT = 4;
+    private static final int WALK_FRAME_COUNT = 8;
+    private static final float WALK_FRAME_DURATION = 0.1f; // Seconds
 
-	public CharacterAssets(Texture idleTexture) {
-		TextureRegion[][] frames = TextureRegion.split(idleTexture, 64, 64);
+    private final Map<CharacterAnimation, Animation<TextureRegion>[]> animations =  new EnumMap<>(CharacterAnimation.class);
 
-		// Sprite direction order: 0 = Up, 1 = Left, 2 = Down, 3 = Right
-		idleFrames = new TextureRegion[] { frames[0][0], frames[1][0], frames[2][0], frames[3][0] };
+    /**
+     * Creates the character's animations from the supplied sprite sheets.
+     *
+     * @param idleTexture the texture containing one idle frame per direction
+     * @param walkTexture the texture containing the walking animation frames
+     */
+	public CharacterAssets(CharacterDefinition character, Map<CharacterAnimation, Texture> textures) {
+
+		if (character == null) {
+			throw new IllegalArgumentException("Character definition cannot be null.");
+		}
+
+		if (textures == null) {
+			throw new IllegalArgumentException("Character textures cannot be null.");
+		}
+
+		for (CharacterAnimation animation : character.getAnimations()) {
+			Texture texture = textures.get(animation);
+
+			if (texture == null) {
+				throw new IllegalArgumentException("Missing texture for animation: " + animation);
+			}
+
+			switch (animation) {
+			case IDLE: animations.put(animation, loadIdleAnimations(texture)); break;
+			case WALK: animations.put(animation, loadWalkAnimations(texture)); break;
+
+			default: throw new UnsupportedOperationException("Animation layout not implemented: " + animation);
+			}
+		}
 	}
 
-	public TextureRegion getIdleFrame(int direction) {
-		return idleFrames[direction];
+    /**
+     * Extracts one idle frame for each direction from the idle sprite sheet.
+     *
+     * @param texture the idle sprite sheet
+     * @return an array of idle frames ordered up, left, down, right
+     */
+	@SuppressWarnings("unchecked")
+	private Animation<TextureRegion>[] loadIdleAnimations(Texture texture) {
+		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
+
+		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
+
+		for (int direction = 0; direction < DIRECTION_COUNT; direction++) {
+			directionalAnimations[direction] = new Animation<>(1f, frames[direction][0]);
+		}
+
+		return directionalAnimations;
+    }
+
+    /**
+     * Extracts the walking frames and creates a looping animation for each direction.
+     *
+     * @param texture the walking sprite sheet
+     * @return an array of walking animations ordered up, left, down, right
+     */
+    @SuppressWarnings("unchecked")
+	private Animation<TextureRegion>[] loadWalkAnimations(Texture texture) {
+		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
+
+		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
+
+		for (int direction = 0; direction < DIRECTION_COUNT; direction++) {
+			TextureRegion[] directionFrames = new TextureRegion[WALK_FRAME_COUNT];
+
+			for (int frame = 0; frame < WALK_FRAME_COUNT; frame++) {
+				directionFrames[frame] = frames[direction][frame];
+			}
+
+			Animation<TextureRegion> animation = new Animation<>(WALK_FRAME_DURATION, directionFrames);
+
+			animation.setPlayMode(PlayMode.LOOP);
+			directionalAnimations[direction] = animation;
+		}
+
+		return directionalAnimations;
+	}
+
+    /**
+     * Returns the frame for the specified animation, direction, and elapsed time.
+     *
+     * @param animation the animation type to retrieve
+     * @param direction the direction index: 0 = up, 1 = left, 2 = down, 3 = right
+     * @param stateTime the elapsed time in seconds since the animation began
+     * @return the frame to render at the specified time
+     */
+	public TextureRegion getFrame(CharacterAnimation animation, Direction direction, float stateTime) {
+
+		if (animation == null) {
+			throw new IllegalArgumentException("Animation cannot be null.");
+		}
+
+		Animation<TextureRegion>[] directionalAnimations = animations.get(animation);
+
+		if (directionalAnimations == null) {
+			throw new IllegalArgumentException("Animation not loaded: " + animation);
+		}
+
+		if (direction == null) {
+		    throw new IllegalArgumentException("Direction cannot be null.");
+		}
+		
+		int directionIndex = direction.ordinal();
+
+		return directionalAnimations[directionIndex].getKeyFrame(stateTime);
 	}
 }

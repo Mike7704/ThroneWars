@@ -18,6 +18,9 @@ public abstract class Entity {
     protected float width = 128f;
     protected float height = 128f;
 	
+    protected Direction direction = Direction.DOWN;
+    protected float stateTime = 0f;
+    
     protected Entity(EntityType type, String name, float x, float y) {
         this.type = type;
         this.name = name;
@@ -26,7 +29,7 @@ public abstract class Entity {
     }
 
 	public void update(float delta) {
-		
+		stateTime += delta;
 	}
 
 	public abstract void render(SpriteBatch batch);

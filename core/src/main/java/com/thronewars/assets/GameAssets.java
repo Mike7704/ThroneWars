@@ -1,5 +1,9 @@
 package com.thronewars.assets;
 
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Texture;
@@ -30,10 +34,13 @@ public class GameAssets {
 	private static final String GAME_BACKGROUND_WINTER = "textures/environment/winter/3.png";
 
 	// Unit images
-	private static final String JON_SNOW_IDLE = "textures/units/jon-snow/idle.png";
+	private static final String UNIT_TEXTURE_DIRECTORY = "textures/units/";
+	private static final String TEXTURE_EXTENSION = ".png";
 	
 	private final AssetManager assetManager;
 
+	private final Map<CharacterDefinition, CharacterAssets> characterAssets = new HashMap<>();
+	
 	private boolean loaded;
 
 	public GameAssets() {
@@ -98,21 +105,31 @@ public class GameAssets {
 	}
 
 	/**
-	 * Queues texture atlases and individual textures for loading.
+	 * Queues textures for loading.
 	 */
 	private void queueTextures() {
 	    assetManager.load(UI_ATLAS, TextureAtlas.class);
 
+	    // Backgrounds
 	    assetManager.load(GAME_BACKGROUND_WINTER, Texture.class);
-	    assetManager.load(JON_SNOW_IDLE, Texture.class);
+	    
+	    // Characters
+	    for (CharacterDefinition character : CharacterDefinitions.ALL) {
+	        loadCharacterTextures(character);
+	    }
 	}
 
 	/**
 	 * Configures texture filtering and wrapping after loading.
 	 */
 	private void configureTextures() {
+		// Backgrounds
 	    configureBackground();
-	    configureCharacterTextures();
+	    
+	    // Characters
+	    for (CharacterDefinition character : CharacterDefinitions.ALL) {
+	        configureCharacterTextures(character);
+	    }
 	}
 
 	/**
@@ -126,13 +143,6 @@ public class GameAssets {
 	}
 
 	/**
-	 * Configures character sprite textures.
-	 */
-	private void configureCharacterTextures() {
-	    setTextureFilter(getJonSnowIdle(), TextureFilter.Nearest);
-	}
-
-	/**
 	 * Configures the filtering used when a texture is scaled.
 	 *
 	 * @param texture The texture to configure.
@@ -142,6 +152,92 @@ public class GameAssets {
 		texture.setFilter(filter, filter);
 	}
 	
+	/**
+	 * Queues all animation textures for a character.
+	 *
+	 * @param character The character whose animation textures should be loaded.
+	 */
+	private void loadCharacterTextures(CharacterDefinition character) {
+	    for (CharacterAnimation animation : character.getAnimations()) {
+	        String path = getCharacterTexturePath(character, animation);
+	        assetManager.load(path, Texture.class);
+	    }
+	}
+
+	/**
+	 * Configures the filtering for all of a character's animation textures.
+	 *
+	 * @param character The character whose animation textures should be configured.
+	 */
+	private void configureCharacterTextures(CharacterDefinition character) {
+		for (CharacterAnimation animation : character.getAnimations()) {
+			setTextureFilter(getCharacterTexture(character, animation), TextureFilter.Nearest);
+		}
+	}
+
+	/**
+	 * Builds the asset path for a character's animation texture.
+	 *
+	 * @param character The character to get the texture path for.
+	 * @param animation The animation represented by the texture.
+	 * @return The full asset path.
+	 */
+	private String getCharacterTexturePath(CharacterDefinition character, CharacterAnimation animation) {
+		return UNIT_TEXTURE_DIRECTORY + character.getId() + "/" + animation.getFileName() + TEXTURE_EXTENSION;
+	}
+
+	/**
+	 * Returns a previously loaded character animation texture.
+	 *
+	 * @param character The character to get the textures for.
+	 * @param animation The animation to retrieve.
+	 * @return The requested texture.
+	 */
+	public Texture getCharacterTexture(CharacterDefinition character, CharacterAnimation animation) {
+		
+		if (character == null) {
+			throw new IllegalArgumentException("Character cannot be null.");
+		}
+		
+		if (animation == null) {
+			throw new IllegalArgumentException("Animation cannot be null.");
+		}
+		
+		if (!character.hasAnimation(animation)) {
+			throw new IllegalArgumentException(character.getId() + " does not support " + animation);
+	    }
+		
+		return assetManager.get(getCharacterTexturePath(character, animation), Texture.class);
+	}
+	
+	/**
+	 * Returns the CharacterAssets for a given character.
+	 *
+	 * @param character The character to retrieve assets for.
+	 * @return The CharacterAssets associated with the character.
+	 */
+	public CharacterAssets getCharacterAssets(CharacterDefinition character) {
+		if (character == null) {
+			throw new IllegalArgumentException("Character definition cannot be null.");
+		}
+
+		CharacterAssets assets = characterAssets.get(character);
+
+		// If the assets have not been created yet, create and cache them
+		if (assets == null) {
+			Map<CharacterAnimation, Texture> textures = new EnumMap<>(CharacterAnimation.class);
+
+			for (CharacterAnimation animation : character.getAnimations()) {
+				textures.put(animation, getCharacterTexture(character, animation));
+			}
+
+			assets = new CharacterAssets(character, textures);
+			characterAssets.put(character, assets);
+		}
+
+		return assets;
+	}
+
 	public TextureAtlas getUIAtlas() {
 		return assetManager.get(UI_ATLAS, TextureAtlas.class);
 	}
@@ -161,34 +257,7 @@ public class GameAssets {
 	public Texture getGameBackground() {
 		return assetManager.get(GAME_BACKGROUND_WINTER, Texture.class);
 	}
-
-	public Texture getJonSnowIdle() {
-	    return assetManager.get(JON_SNOW_IDLE, Texture.class);
-	}
 	
-	/**
-	 * Updates the AssetManager's loading process.
-	 *
-	 * @return true if all assets are loaded, false otherwise.
-	 */
-	public boolean update() {
-		boolean finished = assetManager.update();
-
-		if (finished) {
-			loaded = true;
-		}
-
-		return finished;
-	}
-
-	public float getProgress() {
-		return assetManager.getProgress();
-	}
-
-	public boolean isLoaded() {
-		return loaded;
-	}
-
 	public void dispose() {
 		assetManager.dispose();
 	}
