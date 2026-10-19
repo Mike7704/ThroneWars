@@ -3,6 +3,8 @@ package com.thronewars.assets;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -40,18 +42,16 @@ public class GameAssets {
 	}
 
 	/**
-	 * Configures the loaders for the AssetManager to handle FreeType fonts.
+	 * Configures the loaders used by the AssetManager.
 	 */
 	private void configureLoaders() {
 		InternalFileHandleResolver resolver = new InternalFileHandleResolver();
-
 		// Register the FreeType font generator loader
 		assetManager.setLoader(FreeTypeFontGenerator.class, new FreeTypeFontGeneratorLoader(resolver));
-
 		// Register font generation for .otf files
 		assetManager.setLoader(BitmapFont.class, ".otf", new FreetypeFontLoader(resolver));
 	}
-
+	
 	/**
 	 * Loads the game assets using the AssetManager.
 	 */
@@ -60,30 +60,26 @@ public class GameAssets {
 			return;
 		}
 
-		// Queue the UI atlas
-		assetManager.load(UI_ATLAS, TextureAtlas.class);
-
-		// Load all fonts
-		loadFont(UI_FONT_SMALL, UI_FONT_SIZE_SMALL);
-		loadFont(UI_FONT_MEDIUM, UI_FONT_SIZE_MEDIUM);
-		loadFont(UI_FONT_LARGE, UI_FONT_SIZE_LARGE);
-
-		// Queue the game background
-		assetManager.load(GAME_BACKGROUND_WINTER, Texture.class);
+		queueFonts();
+		queueTextures();
 		
-		// Load the unit images
-		assetManager.load(JON_SNOW_IDLE, Texture.class);
-		
-		// Complete the initial load before screens use the assets
+		// Ensure all queued assets are available before configuring them.
 		assetManager.finishLoading();
-
-		// Configure the background after it has loaded
-		Texture background = getGameBackground();
-		background.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-
-		loaded = true;
+		
+		configureTextures();
+		
+	    loaded = true;
 	}
 
+	/**
+	 * Queues all UI fonts for loading.
+	 */
+	private void queueFonts() {		
+	    loadFont(UI_FONT_SMALL, UI_FONT_SIZE_SMALL);
+	    loadFont(UI_FONT_MEDIUM, UI_FONT_SIZE_MEDIUM);
+	    loadFont(UI_FONT_LARGE, UI_FONT_SIZE_LARGE);
+	}
+	
 	/**
 	 * Loads a font with the specified file name and size.
 	 *
@@ -95,10 +91,55 @@ public class GameAssets {
 
 		fontParams.fontFileName = UI_FONT_FILE;
 		fontParams.fontParameters.size = size;
-		fontParams.fontParameters.minFilter = Texture.TextureFilter.Linear;
-		fontParams.fontParameters.magFilter = Texture.TextureFilter.Linear;
+		fontParams.fontParameters.minFilter = TextureFilter.Linear;
+		fontParams.fontParameters.magFilter = TextureFilter.Linear;
 		
 		assetManager.load(assetKey, BitmapFont.class, fontParams);
+	}
+
+	/**
+	 * Queues texture atlases and individual textures for loading.
+	 */
+	private void queueTextures() {
+	    assetManager.load(UI_ATLAS, TextureAtlas.class);
+
+	    assetManager.load(GAME_BACKGROUND_WINTER, Texture.class);
+	    assetManager.load(JON_SNOW_IDLE, Texture.class);
+	}
+
+	/**
+	 * Configures texture filtering and wrapping after loading.
+	 */
+	private void configureTextures() {
+	    configureBackground();
+	    configureCharacterTextures();
+	}
+
+	/**
+	 * Configures the game background texture.
+	 */
+	private void configureBackground() {
+		Texture background = getGameBackground();
+
+		setTextureFilter(background, TextureFilter.Nearest);
+		background.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+	}
+
+	/**
+	 * Configures character sprite textures.
+	 */
+	private void configureCharacterTextures() {
+	    setTextureFilter(getJonSnowIdle(), TextureFilter.Nearest);
+	}
+
+	/**
+	 * Configures the filtering used when a texture is scaled.
+	 *
+	 * @param texture The texture to configure.
+	 * @param filter The filtering mode to apply.
+	 */
+	private void setTextureFilter(Texture texture, TextureFilter filter) {
+		texture.setFilter(filter, filter);
 	}
 	
 	public TextureAtlas getUIAtlas() {

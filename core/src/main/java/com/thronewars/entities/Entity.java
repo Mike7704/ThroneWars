@@ -15,8 +15,8 @@ public abstract class Entity {
 	
 	protected float x;
     protected float y;
-    protected float width = 64;
-    protected float height = 64;
+    protected float width = 128f;
+    protected float height = 128f;
 	
     protected Entity(EntityType type, String name, float x, float y) {
         this.type = type;
