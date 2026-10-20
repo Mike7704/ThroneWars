@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.thronewars.entities.Direction;
+import com.thronewars.entities.EntityDirection;
 
 /**
  * Splits the character's sprite sheets into individual frames and organises them by direction.
@@ -47,10 +47,10 @@ public class CharacterAssets {
 			}
 
 			switch (animation) {
-			case IDLE: animations.put(animation, loadIdleAnimations(texture)); break;
-			case WALK: animations.put(animation, loadWalkAnimations(texture)); break;
-
-			default: throw new UnsupportedOperationException("Animation layout not implemented: " + animation);
+				case IDLE: animations.put(animation, loadIdleAnimations(texture)); break;
+				case WALK: animations.put(animation, loadWalkAnimations(texture)); break;
+	
+				default: throw new UnsupportedOperationException("Animation layout not implemented: " + animation);
 			}
 		}
 	}
@@ -110,7 +110,7 @@ public class CharacterAssets {
      * @param stateTime the elapsed time in seconds since the animation began
      * @return the frame to render at the specified time
      */
-	public TextureRegion getFrame(CharacterAnimation animation, Direction direction, float stateTime) {
+	public TextureRegion getFrame(CharacterAnimation animation, EntityDirection direction, float stateTime) {
 
 		if (animation == null) {
 			throw new IllegalArgumentException("Animation cannot be null.");

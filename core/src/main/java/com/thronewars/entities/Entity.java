@@ -9,7 +9,7 @@ public abstract class Entity {
 	
 	protected final EntityType type;
 	protected final String name;
-    protected float speed = 1f;
+    protected float speed = 200f;
     protected float health = 10f;
     protected float maxHealth = 10f;
 	
@@ -18,7 +18,8 @@ public abstract class Entity {
     protected float width = 128f;
     protected float height = 128f;
 	
-    protected Direction direction = Direction.DOWN;
+    protected EntityState state = EntityState.IDLE;
+    protected EntityDirection direction = EntityDirection.DOWN;
     protected float stateTime = 0f;
     
     protected Entity(EntityType type, String name, float x, float y) {
@@ -29,7 +30,10 @@ public abstract class Entity {
     }
 
 	public void update(float delta) {
-		stateTime += delta;
+		if (state == EntityState.WALKING) {
+			stateTime += delta;
+			move(delta);
+		}
 	}
 
 	public abstract void render(SpriteBatch batch);
@@ -42,12 +46,75 @@ public abstract class Entity {
 		health = Math.max(0, health - damage);
 	}
 
+	private void move(float delta) {
+		
+	    float distance = speed * delta;
+
+	    switch (direction) {
+	        case UP:
+	            y += distance;
+	            break;
+	        case DOWN:
+	            y -= distance;
+	            break;
+	        case LEFT:
+	            x -= distance;
+	            break;
+	        case RIGHT:
+	            x += distance;
+	            break;
+	    }
+	}
+	
+	public void moveUp() {
+	    setState(EntityState.WALKING);
+	    direction = EntityDirection.UP;
+	}
+
+	public void moveLeft() {
+	    setState(EntityState.WALKING);
+	    direction = EntityDirection.LEFT;
+	}
+
+	public void moveDown() {
+	    setState(EntityState.WALKING);
+	    direction = EntityDirection.DOWN;
+	}
+
+	public void moveRight() {
+	    setState(EntityState.WALKING);
+	    direction = EntityDirection.RIGHT;
+	}
+
+	public void setIdle() {
+	    setState(EntityState.IDLE);
+	}
+	
 	public boolean isAlive() {
 		return health > 0;
 	}
 	
 	public EntityType getType() {
 		return type;
+	}
+	
+	public EntityState getState() {
+		return state;
+	}
+	
+	public void setState(EntityState newState) {
+	    if (state != newState) {
+	        state = newState;
+	        stateTime = 0f;
+	    }
+	}
+	
+	public EntityDirection getDirection() {
+		return direction;
+	}
+	
+	public void setDirection(EntityDirection direction) {
+		this.direction = direction;
 	}
 
 	public String getName() {

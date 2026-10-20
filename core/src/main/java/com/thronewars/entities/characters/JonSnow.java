@@ -13,7 +13,7 @@ import com.thronewars.entities.EntityType;
 public class JonSnow extends Entity {
 
     private static final String NAME = "Jon Snow";
-    private static final float SPEED = 2f;
+    private static final float SPEED = 200f;
     private static final float MAX_HEALTH = 100f;
 
     private final CharacterAssets characterAssets;
@@ -30,7 +30,15 @@ public class JonSnow extends Entity {
 
     @Override
     public void render(SpriteBatch batch) {
-		TextureRegion frame = characterAssets.getFrame(CharacterAnimation.IDLE, direction, stateTime);
+    	CharacterAnimation animation;
+    	
+    	switch (state) {
+    		case IDLE: 		animation = CharacterAnimation.IDLE; break;
+    		case WALKING: 	animation = CharacterAnimation.WALK; break;
+    		default: 		animation = CharacterAnimation.IDLE;
+    	}
+    	
+		TextureRegion frame = characterAssets.getFrame(animation, direction, stateTime);
     	
         batch.draw(frame, x, y, width, height);
     }

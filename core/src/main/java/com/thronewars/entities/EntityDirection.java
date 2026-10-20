@@ -1,6 +1,6 @@
 package com.thronewars.entities;
 
-public enum Direction {
+public enum EntityDirection {
     UP,
     LEFT,
     DOWN,

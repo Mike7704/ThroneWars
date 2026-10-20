@@ -56,6 +56,23 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	private void input() {
+		
+		if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
+			entities.get(0).moveUp();
+		}
+		else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+			entities.get(0).moveLeft();
+		}
+		else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
+			entities.get(0).moveDown();
+		}
+		else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+			entities.get(0).moveRight();
+		}
+		else {
+			entities.get(0).setIdle();
+		}
+				
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			game.getScreenManager().showScreen(ScreenType.MAIN_MENU);
 		}
