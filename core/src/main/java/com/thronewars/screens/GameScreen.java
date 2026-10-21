@@ -22,6 +22,7 @@ public class GameScreen extends ScreenAdapter {
 
 	private static final float WORLD_WIDTH = 5760f;
 	private static final float WORLD_HEIGHT = ScreenManager.VIEW_HEIGHT;
+	private static final float CAMERA_SPEED = 960f;
 	
 	private final GdxGame game;
 	private final SpriteBatch batch;
@@ -35,8 +36,11 @@ public class GameScreen extends ScreenAdapter {
 		this.game = game;
 		this.batch = game.getBatch();
 
+		// Set up the game viewport with a fixed aspect ratio
 		gameViewport = new FitViewport(ScreenManager.VIEW_WIDTH, ScreenManager.VIEW_HEIGHT);
-
+		gameViewport.getCamera().position.set(ScreenManager.VIEW_WIDTH / 2f, ScreenManager.VIEW_HEIGHT / 2f, 0f);
+		gameViewport.getCamera().update();
+		
 		backgroundTexture = game.getGameAssets().getGameBackground();
 		
 		addEntities();
@@ -53,32 +57,69 @@ public class GameScreen extends ScreenAdapter {
 
 	@Override
 	public void render(float delta) {
-		input();
+		input(delta);
 		update(delta);
 		draw();
 	}
 
-	private void input() {
+	private void input(float delta) {
+		// Player controls
+		controlCharacter();
 		
-		if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
-			entities.get(0).moveUp();
-		}
-		else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-			entities.get(0).moveLeft();
-		}
-		else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
-			entities.get(0).moveDown();
-		}
-		else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-			entities.get(0).moveRight();
-		}
-		else {
-			entities.get(0).setIdle();
-		}
-				
-		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		// Camera controls
+		moveCamera(delta);
+		
+		// Menu controls
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
 			game.getScreenManager().showScreen(ScreenType.MAIN_MENU);
 		}
+	}
+	
+	/**
+	 * Control the selected character
+	 */
+	private void controlCharacter() {
+		Entity player = entities.get(0);
+		 
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+			player.moveUp();
+		}
+		else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+			player.moveLeft();
+		}
+		else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+			player.moveDown();
+		}
+		else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+			player.moveRight();
+		}
+		else {
+			player.setIdle();
+		}
+	}
+	
+	/**
+	 * Move the camera left or right within the world boundaries.
+	 * @param delta
+	 */
+	private void moveCamera(float delta) {
+		float movement = CAMERA_SPEED * delta;
+
+		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+			gameViewport.getCamera().position.x -= movement;
+		}
+
+		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+			gameViewport.getCamera().position.x += movement;
+		}
+
+		// Keep the camera inside the world.
+		float minX = ScreenManager.VIEW_WIDTH / 2f;
+		float maxX = WORLD_WIDTH - ScreenManager.VIEW_WIDTH / 2f;
+
+		gameViewport.getCamera().position.x = Math.max(minX, Math.min(gameViewport.getCamera().position.x, maxX));
+
+		gameViewport.getCamera().update();
 	}
 
 	private void update(float delta) {
@@ -111,16 +152,13 @@ public class GameScreen extends ScreenAdapter {
 	 * Draws the background texture, scaling it to fit the viewport while maintaining its aspect ratio.
 	 */
 	private void drawBackground() {
-		float worldWidth = gameViewport.getWorldWidth();
-		float worldHeight = gameViewport.getWorldHeight();
-
-		float u2 = worldWidth / ScreenManager.VIEW_WIDTH;
-
-		batch.draw(backgroundTexture, 0f, 0f, worldWidth, worldHeight, 0f, 1f, u2, 0f);
+		float cameraX = gameViewport.getCamera().position.x - ScreenManager.VIEW_WIDTH / 2f;
+		 
+		batch.draw(backgroundTexture, cameraX, 0f, ScreenManager.VIEW_WIDTH, ScreenManager.VIEW_HEIGHT);
 	}
-
+	
 	@Override
 	public void resize(int width, int height) {
-		gameViewport.update(width, height, true);
+		gameViewport.update(width, height, false);
 	}
 }

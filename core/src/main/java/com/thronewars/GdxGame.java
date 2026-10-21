@@ -1,6 +1,8 @@
 package com.thronewars;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thronewars.assets.GameAssets;
 import com.thronewars.managers.ScreenManager;
@@ -31,6 +33,23 @@ public class GdxGame extends Game {
 		screenManager.showScreen(ScreenType.MAIN_MENU);
 	}
 
+	@Override
+	public void render() {
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+	        toggleFullscreen();
+	    }
+
+	    super.render();
+	}
+
+	private void toggleFullscreen() {
+	    if (Gdx.graphics.isFullscreen()) {
+	        Gdx.graphics.setWindowedMode(1280, 720);
+	    } else {
+	        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+	    }
+	}
+	
 	public SpriteBatch getBatch() {
 		return batch;
 	}
