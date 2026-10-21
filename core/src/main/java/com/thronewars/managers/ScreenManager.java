@@ -15,8 +15,8 @@ import com.thronewars.screens.SettingsMenuScreen;
  */
 public class ScreenManager {
 	
-	public static final float GAME_WIDTH = 1920f;
-	public static final float GAME_HEIGHT = 1080f;
+	public static final float VIEW_WIDTH = 1920f;
+	public static final float VIEW_HEIGHT = 1080f;
 	
 	private final GdxGame game;
 	private final Map<ScreenType, Screen> screens = new EnumMap<>(ScreenType.class);

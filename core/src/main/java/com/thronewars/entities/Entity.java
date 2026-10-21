@@ -29,12 +29,12 @@ public abstract class Entity {
         this.y = y;
     }
 
-	public void update(float delta) {
-		if (state == EntityState.WALKING) {
-			stateTime += delta;
-			move(delta);
-		}
-	}
+    public void update(float delta, float worldWidth, float worldHeight) {
+        if (state == EntityState.WALKING) {
+            stateTime += delta;
+            move(delta, worldWidth, worldHeight);
+        }
+    }
 
 	public abstract void render(SpriteBatch batch);
 
@@ -46,7 +46,7 @@ public abstract class Entity {
 		health = Math.max(0, health - damage);
 	}
 
-	private void move(float delta) {
+	private void move(float delta, float worldWidth, float worldHeight) {
 		
 	    float distance = speed * delta;
 
@@ -64,6 +64,13 @@ public abstract class Entity {
 	            x += distance;
 	            break;
 	    }
+	    
+	    keepInsideWorld(worldWidth, worldHeight);
+	}
+	
+	protected void keepInsideWorld(float worldWidth, float worldHeight) {
+	    x = Math.max(0f, Math.min(x, worldWidth - width));
+	    y = Math.max(0f, Math.min(y, worldHeight - height));
 	}
 	
 	public void moveUp() {

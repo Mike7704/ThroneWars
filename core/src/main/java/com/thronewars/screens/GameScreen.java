@@ -20,6 +20,9 @@ import com.thronewars.managers.ScreenType;
  */
 public class GameScreen extends ScreenAdapter {
 
+	private static final float WORLD_WIDTH = 5760f;
+	private static final float WORLD_HEIGHT = ScreenManager.VIEW_HEIGHT;
+	
 	private final GdxGame game;
 	private final SpriteBatch batch;
 	private final FitViewport gameViewport;
@@ -32,7 +35,7 @@ public class GameScreen extends ScreenAdapter {
 		this.game = game;
 		this.batch = game.getBatch();
 
-		gameViewport = new FitViewport(ScreenManager.GAME_WIDTH, ScreenManager.GAME_HEIGHT);
+		gameViewport = new FitViewport(ScreenManager.VIEW_WIDTH, ScreenManager.VIEW_HEIGHT);
 
 		backgroundTexture = game.getGameAssets().getGameBackground();
 		
@@ -81,7 +84,7 @@ public class GameScreen extends ScreenAdapter {
 	private void update(float delta) {
 		// Entities
 		for (Entity entity : entities) {
-		    entity.update(delta);
+		    entity.update(delta, WORLD_WIDTH, WORLD_HEIGHT);
 		}
 	}
 
@@ -111,7 +114,7 @@ public class GameScreen extends ScreenAdapter {
 		float worldWidth = gameViewport.getWorldWidth();
 		float worldHeight = gameViewport.getWorldHeight();
 
-		float u2 = worldWidth / ScreenManager.GAME_WIDTH;
+		float u2 = worldWidth / ScreenManager.VIEW_WIDTH;
 
 		batch.draw(backgroundTexture, 0f, 0f, worldWidth, worldHeight, 0f, 1f, u2, 0f);
 	}

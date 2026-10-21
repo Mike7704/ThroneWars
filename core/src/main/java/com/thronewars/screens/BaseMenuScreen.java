@@ -23,7 +23,7 @@ public abstract class BaseMenuScreen extends ScreenAdapter {
 		this.game = game;
 		this.uiManager = game.getUIManager();
 
-		FitViewport viewport = new FitViewport(ScreenManager.GAME_WIDTH, ScreenManager.GAME_HEIGHT);
+		FitViewport viewport = new FitViewport(ScreenManager.VIEW_WIDTH, ScreenManager.VIEW_HEIGHT);
 
 		stage = new Stage(viewport, game.getBatch());
 		
