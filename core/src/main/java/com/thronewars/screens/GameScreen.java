@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -14,6 +14,7 @@ import com.thronewars.entities.Entity;
 import com.thronewars.entities.EntityFactory;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
+import com.thronewars.world.GameWorld;
 
 /**
  * Screen to display the main game view.
@@ -27,8 +28,8 @@ public class GameScreen extends ScreenAdapter {
 	private final GdxGame game;
 	private final SpriteBatch batch;
 	private final FitViewport gameViewport;
-
-	private final Texture backgroundTexture;
+	
+	private final GameWorld world;
 	
 	private final Array<Entity> entities = new Array<>();
 	
@@ -41,7 +42,7 @@ public class GameScreen extends ScreenAdapter {
 		gameViewport.getCamera().position.set(ScreenManager.VIEW_WIDTH / 2f, ScreenManager.VIEW_HEIGHT / 2f, 0f);
 		gameViewport.getCamera().update();
 		
-		backgroundTexture = game.getGameAssets().getGameBackground();
+		world = new GameWorld();
 		
 		addEntities();
 	}
@@ -130,15 +131,19 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	private void draw() {
-		ScreenUtils.clear(Color.BLACK);
+	    ScreenUtils.clear(Color.BLACK);
 
-		gameViewport.apply();
+	    gameViewport.apply();
 
-		batch.setProjectionMatrix(gameViewport.getCamera().combined);
+	    OrthographicCamera camera =
+	        (OrthographicCamera) gameViewport.getCamera();
 
-		batch.begin();
+	    world.renderMap(camera);
 
-		drawBackground();
+	    batch.setProjectionMatrix(camera.combined);
+	    batch.begin();
+
+	    world.renderTreeObjects(batch, camera);
 
 		// Entities
 		for (Entity entity : entities) {
@@ -146,15 +151,6 @@ public class GameScreen extends ScreenAdapter {
 		}
 		
 		batch.end();
-	}
-
-	/**
-	 * Draws the background texture, scaling it to fit the viewport while maintaining its aspect ratio.
-	 */
-	private void drawBackground() {
-		float cameraX = gameViewport.getCamera().position.x - ScreenManager.VIEW_WIDTH / 2f;
-		 
-		batch.draw(backgroundTexture, cameraX, 0f, ScreenManager.VIEW_WIDTH, ScreenManager.VIEW_HEIGHT);
 	}
 	
 	@Override

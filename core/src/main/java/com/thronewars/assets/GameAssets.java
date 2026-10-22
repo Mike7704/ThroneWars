@@ -8,7 +8,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -31,8 +30,6 @@ public class GameAssets {
 	private static final int UI_FONT_SIZE_MEDIUM = 40;
 	private static final int UI_FONT_SIZE_LARGE = 60;
 	
-	private static final String GAME_BACKGROUND_WINTER = "textures/environment/winter/3.png";
-
 	// Unit images
 	private static final String UNIT_TEXTURE_DIRECTORY = "textures/units/";
 	private static final String TEXTURE_EXTENSION = ".png";
@@ -109,9 +106,6 @@ public class GameAssets {
 	 */
 	private void queueTextures() {
 	    assetManager.load(UI_ATLAS, TextureAtlas.class);
-
-	    // Backgrounds
-	    assetManager.load(GAME_BACKGROUND_WINTER, Texture.class);
 	    
 	    // Characters
 	    for (CharacterDefinition character : CharacterDefinitions.ALL) {
@@ -123,23 +117,10 @@ public class GameAssets {
 	 * Configures texture filtering and wrapping after loading.
 	 */
 	private void configureTextures() {
-		// Backgrounds
-	    configureBackground();
-	    
 	    // Characters
 	    for (CharacterDefinition character : CharacterDefinitions.ALL) {
 	        configureCharacterTextures(character);
 	    }
-	}
-
-	/**
-	 * Configures the game background texture.
-	 */
-	private void configureBackground() {
-		Texture background = getGameBackground();
-
-		setTextureFilter(background, TextureFilter.Nearest);
-		background.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
 	}
 
 	/**
@@ -252,10 +233,6 @@ public class GameAssets {
 
 	public BitmapFont getLargeFont() {
 	    return assetManager.get(UI_FONT_LARGE, BitmapFont.class);
-	}
-
-	public Texture getGameBackground() {
-		return assetManager.get(GAME_BACKGROUND_WINTER, Texture.class);
 	}
 	
 	public void dispose() {
