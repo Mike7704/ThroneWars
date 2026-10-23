@@ -10,6 +10,9 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
+/**
+ * Represents the game world, including the map and its objects.
+ */
 public class GameWorld {
 
 	private static final float MAP_SCALE = 2f;
@@ -22,25 +25,45 @@ public class GameWorld {
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, MAP_SCALE);
     }
 
-    public void renderMap(OrthographicCamera camera) {
+    /**
+     * Renders map layers.
+     */
+    public void render(OrthographicCamera camera, SpriteBatch batch) {
         mapRenderer.setView(camera);
-        mapRenderer.render();
+
+		for (int i = 0; i < tiledMap.getLayers().getCount(); i++) {
+			MapLayer layer = tiledMap.getLayers().get(i);
+
+			if (!layer.isVisible()) {
+				continue;
+			}
+
+			if (layer.getName().equals("trees-big") || layer.getName().equals("ores")) {
+				renderObjectLayer(layer, batch, camera);
+			} else {
+				mapRenderer.render(new int[] { i });
+			}
+		}
     }
-    
-    public void renderTreeObjects(SpriteBatch batch, OrthographicCamera camera) {
-        MapLayer treesLayer = tiledMap.getLayers().get("trees");
 
-        if (treesLayer == null) {
-            return;
-        }
+    /**
+     * Renders tile objects from an object layer.
+     * @param layer
+     * @param batch
+     * @param camera
+     */
+	private void renderObjectLayer(MapLayer layer, SpriteBatch batch, OrthographicCamera camera) {
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
 
-        for (MapObject object : treesLayer.getObjects()) {
-            if (!(object instanceof TiledMapTileMapObject)) {
-                continue;
-            }
+		for (MapObject object : layer.getObjects()) {
+			if (!(object instanceof TiledMapTileMapObject)) {
+				continue;
+			}
 
-            TiledMapTileMapObject tree = (TiledMapTileMapObject) object;
-            TextureRegion region = tree.getTextureRegion();
+			TiledMapTileMapObject tileObject = (TiledMapTileMapObject) object;
+
+            TextureRegion region = tileObject.getTextureRegion();
 
             if (region == null) {
                 continue;
@@ -48,17 +71,19 @@ public class GameWorld {
 
             batch.draw(
                 region,
-                tree.getX() * MAP_SCALE,
-                tree.getY() * MAP_SCALE,
-                tree.getOriginX() * MAP_SCALE,
-                tree.getOriginY() * MAP_SCALE,
+                tileObject.getX() * MAP_SCALE,
+                tileObject.getY() * MAP_SCALE,
+                tileObject.getOriginX() * MAP_SCALE,
+                tileObject.getOriginY() * MAP_SCALE,
                 region.getRegionWidth() * MAP_SCALE,
                 region.getRegionHeight() * MAP_SCALE,
-                tree.getScaleX(),
-                tree.getScaleY(),
-                tree.getRotation()
+                tileObject.getScaleX(),
+                tileObject.getScaleY(),
+                tileObject.getRotation()
             );
         }
+
+        batch.end();
     }
     
     public void dispose() {

@@ -114,7 +114,7 @@ public class GameScreen extends ScreenAdapter {
 			gameViewport.getCamera().position.x += movement;
 		}
 
-		// Keep the camera inside the world.
+		// Keep the camera inside the world
 		float minX = ScreenManager.VIEW_WIDTH / 2f;
 		float maxX = WORLD_WIDTH - ScreenManager.VIEW_WIDTH / 2f;
 
@@ -135,15 +135,13 @@ public class GameScreen extends ScreenAdapter {
 
 	    gameViewport.apply();
 
-	    OrthographicCamera camera =
-	        (OrthographicCamera) gameViewport.getCamera();
+		OrthographicCamera camera = (OrthographicCamera) gameViewport.getCamera();
 
-	    world.renderMap(camera);
+		// Render world layers and objects
+	    world.render(camera, batch);
 
 	    batch.setProjectionMatrix(camera.combined);
 	    batch.begin();
-
-	    world.renderTreeObjects(batch, camera);
 
 		// Entities
 		for (Entity entity : entities) {
