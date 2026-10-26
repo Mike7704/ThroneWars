@@ -1,5 +1,7 @@
 package com.thronewars.screens;
 
+import java.util.Comparator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -33,6 +35,8 @@ public class GameScreen extends ScreenAdapter {
 	
 	private final Array<Entity> entities = new Array<>();
 	
+	private Entity player;
+	
 	public GameScreen(GdxGame game) {
 		this.game = game;
 		this.batch = game.getBatch();
@@ -53,7 +57,11 @@ public class GameScreen extends ScreenAdapter {
 	private void addEntities() {
 		EntityFactory entityFactory = new EntityFactory(game);
 
-	    entities.add(entityFactory.createJonSnow(200f, 100f));
+		player = entityFactory.createJonSnow(100f, 300f);
+		entities.add(player);
+
+		// World entity objects
+	    entities.addAll(world.getOres());
 	}
 
 	@Override
@@ -79,9 +87,7 @@ public class GameScreen extends ScreenAdapter {
 	/**
 	 * Control the selected character
 	 */
-	private void controlCharacter() {
-		Entity player = entities.get(0);
-		 
+	private void controlCharacter() {		 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			player.moveUp();
 		}
@@ -140,6 +146,9 @@ public class GameScreen extends ScreenAdapter {
 		// Render world layers and objects
 	    world.render(camera, batch);
 
+	    // Sort entities from back to front
+		entities.sort(Comparator.comparingDouble(Entity::getY).reversed());
+	    
 	    batch.setProjectionMatrix(camera.combined);
 	    batch.begin();
 

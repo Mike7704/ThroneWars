@@ -5,4 +5,5 @@ public enum EntityType {
     SOLDIER,
     ARCHER,
     HERO,
+    ORE,
 }

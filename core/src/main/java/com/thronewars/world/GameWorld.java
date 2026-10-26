@@ -9,6 +9,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.Array;
+import com.thronewars.entities.world.Ore;
 
 /**
  * Represents the game world, including the map and its objects.
@@ -20,10 +22,43 @@ public class GameWorld {
     private final TiledMap tiledMap;
     private final OrthogonalTiledMapRenderer mapRenderer;
 
+    // World entity objects
+    private final Array<Ore> ores = new Array<>();
+    
     public GameWorld() {
         tiledMap = new TmxMapLoader().load("maps/the_north/the_north.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, MAP_SCALE);
+        
+        loadOres();
     }
+
+    /**
+     * Creates an Ore entity for every tile object in the Tiled map's ores layer.
+     */
+	private void loadOres() {
+		MapLayer layer = tiledMap.getLayers().get("ores");
+
+		if (layer == null) {
+			return;
+		}
+
+		for (MapObject object : layer.getObjects()) {
+			if (object instanceof TiledMapTileMapObject) {
+				TiledMapTileMapObject tileObject = (TiledMapTileMapObject) object;
+
+				if (tileObject.getTextureRegion() != null) {
+					ores.add(new Ore(tileObject, MAP_SCALE));
+				}
+			}
+		}
+	}
+    
+	/**
+	 * Returns the ore entities loaded from the map.
+	 */
+	public Array<Ore> getOres() {
+		return ores;
+	}
 
     /**
      * Renders map layers.
@@ -38,10 +73,10 @@ public class GameWorld {
 				continue;
 			}
 
-			if (layer.getName().equals("trees-big") || layer.getName().equals("ores")) {
-				renderObjectLayer(layer, batch, camera);
-			} else {
-				mapRenderer.render(new int[] { i });
+			switch (layer.getName()) {
+				case "ores": continue; // Entity object
+				case "trees-big": renderObjectLayer(layer, batch, camera); break;
+				default: mapRenderer.render(new int[] { i });
 			}
 		}
     }
