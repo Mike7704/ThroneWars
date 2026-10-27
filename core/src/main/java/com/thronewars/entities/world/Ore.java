@@ -1,5 +1,6 @@
 package com.thronewars.entities.world;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
@@ -37,5 +38,17 @@ public class Ore extends Entity {
 		}
 
 		batch.draw(textureRegion, x, y, width, height);
+	}
+	
+	@Override
+	public void renderShadow(SpriteBatch batch, Texture shadowTexture) {
+	    float shadowWidth = width;
+	    float shadowHeight = height;
+	    float shadowYOffset  = 2f;
+	    
+	    float shadowX = x + (width - shadowWidth) / 2f;
+	    float shadowY = y - (shadowHeight / 2f) + shadowYOffset ;
+
+		batch.draw(shadowTexture, shadowX, shadowY, shadowWidth, shadowHeight);
 	}
 }

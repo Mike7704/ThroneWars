@@ -1,5 +1,6 @@
 package com.thronewars.entities;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 /**
@@ -38,6 +39,17 @@ public abstract class Entity {
 
 	public abstract void render(SpriteBatch batch);
 
+	public void renderShadow(SpriteBatch batch, Texture shadowTexture) {
+	    float shadowWidth = width * 0.5f;
+	    float shadowHeight = height * 0.5f;
+	    float shadowYOffset  = 7f;
+	    
+	    float shadowX = x + (width - shadowWidth) / 2f;
+	    float shadowY = y - (shadowHeight / 2f) + shadowYOffset ;
+
+		batch.draw(shadowTexture, shadowX, shadowY, shadowWidth, shadowHeight);
+	}
+	
 	public void takeDamage(float damage) {
 		if (damage <= 0) {
 			return;
@@ -47,7 +59,6 @@ public abstract class Entity {
 	}
 
 	private void move(float delta, float worldWidth, float worldHeight) {
-		
 	    float distance = speed * delta;
 
 	    switch (direction) {

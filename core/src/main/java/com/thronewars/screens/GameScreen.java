@@ -7,6 +7,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -33,8 +34,9 @@ public class GameScreen extends ScreenAdapter {
 	
 	private final GameWorld world;
 	
-	private final Array<Entity> entities = new Array<>();
+	private final Texture shadowTexture;
 	
+	private final Array<Entity> entities = new Array<>();
 	private Entity player;
 	
 	public GameScreen(GdxGame game) {
@@ -47,6 +49,8 @@ public class GameScreen extends ScreenAdapter {
 		gameViewport.getCamera().update();
 		
 		world = new GameWorld();
+		
+		shadowTexture = game.getGameAssets().getShadowTexture();
 		
 		addEntities();
 	}
@@ -154,6 +158,7 @@ public class GameScreen extends ScreenAdapter {
 
 		// Entities
 		for (Entity entity : entities) {
+			entity.renderShadow(batch, shadowTexture);
 		    entity.render(batch);
 		}
 		

@@ -34,6 +34,9 @@ public class GameAssets {
 	private static final String UNIT_TEXTURE_DIRECTORY = "textures/units/";
 	private static final String TEXTURE_EXTENSION = ".png";
 	
+	// Effect images
+	private static final String SHADOW_TEXTURE = "textures/effects/shadow.png";
+	
 	private final AssetManager assetManager;
 
 	private final Map<CharacterDefinition, CharacterAssets> characterAssets = new HashMap<>();
@@ -106,6 +109,9 @@ public class GameAssets {
 	 */
 	private void queueTextures() {
 	    assetManager.load(UI_ATLAS, TextureAtlas.class);
+	    
+	    // Effects
+	    assetManager.load(SHADOW_TEXTURE, Texture.class);
 	    
 	    // Characters
 	    for (CharacterDefinition character : CharacterDefinitions.ALL) {
@@ -217,6 +223,10 @@ public class GameAssets {
 		}
 
 		return assets;
+	}
+	
+	public Texture getShadowTexture() {
+	    return assetManager.get(SHADOW_TEXTURE, Texture.class);
 	}
 
 	public TextureAtlas getUIAtlas() {
