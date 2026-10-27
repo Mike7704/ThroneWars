@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  * Represents a generic entity with common properties and behaviours.
  */
 public abstract class Entity {
-	
+		
 	protected final EntityType type;
 	protected final String name;
     protected float speed = 200f;
@@ -80,8 +80,11 @@ public abstract class Entity {
 	}
 	
 	protected void keepInsideWorld(float worldWidth, float worldHeight) {
+		float minY = Math.round((worldHeight * 0.24f) / 10f) * 10f;
+	    float maxY = Math.round((worldHeight * 0.57f) / 10f) * 10f;
+	    
 	    x = Math.max(0f, Math.min(x, worldWidth - width));
-	    y = Math.max(0f, Math.min(y, worldHeight - height));
+	    y = Math.max(minY, Math.min(y, maxY - height));
 	}
 	
 	public void moveUp() {
