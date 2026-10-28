@@ -158,7 +158,9 @@ public class GameScreen extends ScreenAdapter {
 
 		// Entities
 		for (Entity entity : entities) {
-			entity.renderShadow(batch, shadowTexture);
+			if (game.getSettingsManager().areEntityShadowsEnabled()) {
+				entity.renderShadow(batch, shadowTexture);	
+			}
 		    entity.render(batch);
 		}
 		

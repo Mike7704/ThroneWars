@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thronewars.assets.GameAssets;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
+import com.thronewars.managers.SettingsManager;
 import com.thronewars.managers.UIManager;
 
 /**
@@ -17,9 +18,10 @@ public class GdxGame extends Game {
 	private SpriteBatch batch;
 	private GameAssets gameAssets;
 
+	private SettingsManager settingsManager;
 	private UIManager uiManager;
 	private ScreenManager screenManager;
-
+	
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
@@ -27,6 +29,7 @@ public class GdxGame extends Game {
 		gameAssets = new GameAssets();
 		gameAssets.load();
 		
+		settingsManager = new SettingsManager();
 		uiManager = new UIManager(gameAssets);
 		screenManager = new ScreenManager(this);
 
@@ -42,10 +45,12 @@ public class GdxGame extends Game {
 	    super.render();
 	}
 
-	private void toggleFullscreen() {
+	public void toggleFullscreen() {
 	    if (Gdx.graphics.isFullscreen()) {
+	    	settingsManager.setFullscreenEnabled(false);
 	        Gdx.graphics.setWindowedMode(1280, 720);
 	    } else {
+	    	settingsManager.setFullscreenEnabled(true);
 	        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 	    }
 	}
@@ -58,6 +63,10 @@ public class GdxGame extends Game {
 		return gameAssets;
 	}
 
+	public SettingsManager getSettingsManager() {
+	    return settingsManager;
+	}
+	
 	public UIManager getUIManager() {
 		return uiManager;
 	}
