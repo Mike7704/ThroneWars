@@ -15,11 +15,18 @@ import com.thronewars.entities.EntityDirection;
  */
 public class CharacterAssets {
 
-    private static final int FRAME_WIDTH = 64;
-    private static final int FRAME_HEIGHT = 64;
+    private static final int FRAME_WIDTH_64 = 64;
+    private static final int FRAME_HEIGHT_64 = 64;
+    private static final int FRAME_WIDTH_192 = 192;
+    private static final int FRAME_HEIGHT_192 = 192;
+    
     private static final int DIRECTION_COUNT = 4;
+    
     private static final int WALK_FRAME_COUNT = 8;
     private static final float WALK_FRAME_DURATION = 0.1f; // Seconds
+    
+    private static final int SLASH_FRAME_COUNT = 6;
+    private static final float SLASH_FRAME_DURATION = 0.1f; // Seconds
 
     private final Map<CharacterAnimation, Animation<TextureRegion>[]> animations =  new EnumMap<>(CharacterAnimation.class);
 
@@ -49,7 +56,8 @@ public class CharacterAssets {
 			switch (animation) {
 				case IDLE: animations.put(animation, loadIdleAnimations(texture)); break;
 				case WALK: animations.put(animation, loadWalkAnimations(texture)); break;
-	
+				case SLASH: animations.put(animation, loadSlashAnimations(texture)); break;
+				
 				default: throw new UnsupportedOperationException("Animation layout not implemented: " + animation);
 			}
 		}
@@ -63,7 +71,7 @@ public class CharacterAssets {
      */
 	@SuppressWarnings("unchecked")
 	private Animation<TextureRegion>[] loadIdleAnimations(Texture texture) {
-		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
+		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH_64, FRAME_HEIGHT_64);
 
 		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
 
@@ -82,7 +90,7 @@ public class CharacterAssets {
      */
     @SuppressWarnings("unchecked")
 	private Animation<TextureRegion>[] loadWalkAnimations(Texture texture) {
-		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
+		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH_64, FRAME_HEIGHT_64);
 
 		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
 
@@ -102,6 +110,34 @@ public class CharacterAssets {
 		return directionalAnimations;
 	}
 
+    /**
+     * Extracts the slash frames and creates an animation for each direction.
+     *
+     * @param texture the slash sprite sheet
+     * @return an array of slash animations ordered up, left, down, right
+     */
+    @SuppressWarnings("unchecked")
+	private Animation<TextureRegion>[] loadSlashAnimations(Texture texture) {
+		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH_192, FRAME_HEIGHT_192);
+
+		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
+
+		for (int direction = 0; direction < DIRECTION_COUNT; direction++) {
+			TextureRegion[] directionFrames = new TextureRegion[SLASH_FRAME_COUNT];
+
+			for (int frame = 0; frame < SLASH_FRAME_COUNT; frame++) {
+				directionFrames[frame] = frames[direction][frame];
+			}
+
+			Animation<TextureRegion> animation = new Animation<>(SLASH_FRAME_DURATION, directionFrames);
+
+			animation.setPlayMode(PlayMode.NORMAL);
+			directionalAnimations[direction] = animation;
+		}
+
+		return directionalAnimations;
+	}
+    
     /**
      * Returns the frame for the specified animation, direction, and elapsed time.
      *
@@ -129,5 +165,9 @@ public class CharacterAssets {
 		int directionIndex = direction.ordinal();
 
 		return directionalAnimations[directionIndex].getKeyFrame(stateTime);
+	}
+		
+	public static float getSlashDuration() {
+	    return SLASH_FRAME_COUNT * SLASH_FRAME_DURATION;
 	}
 }

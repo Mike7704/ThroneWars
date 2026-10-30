@@ -13,9 +13,9 @@ public final class CharacterDefinitions {
 		new CharacterDefinition(
 	        "jon-snow",
 	        CharacterAnimation.IDLE,
-	        CharacterAnimation.WALK
+	        CharacterAnimation.WALK,
 	        //CharacterAnimation.HURT,
-	        //CharacterAnimation.SLASH,
+	        CharacterAnimation.SLASH
 	        //CharacterAnimation.THRUST,
 	        //CharacterAnimation.BACKSLASH
 		);

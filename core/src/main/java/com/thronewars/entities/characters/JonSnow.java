@@ -35,11 +35,17 @@ public class JonSnow extends Entity {
     	switch (state) {
     		case IDLE: 		animation = CharacterAnimation.IDLE; break;
     		case WALKING: 	animation = CharacterAnimation.WALK; break;
+    		case SLASHING:	animation = CharacterAnimation.SLASH; break;
     		default: 		animation = CharacterAnimation.IDLE;
     	}
     	
 		TextureRegion frame = characterAssets.getFrame(animation, direction, stateTime);
     	
-        batch.draw(frame, x, y, width, height);
+		if (animation == CharacterAnimation.SLASH) {
+	        renderAttack(batch, frame);
+	    }
+		else {
+	        batch.draw(frame, x, y, width, height);
+	    }
     }
 }

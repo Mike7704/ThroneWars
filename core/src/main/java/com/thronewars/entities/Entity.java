@@ -2,12 +2,16 @@ package com.thronewars.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.thronewars.assets.CharacterAssets;
 
 /**
  * Represents a generic entity with common properties and behaviours.
  */
 public abstract class Entity {
-		
+
+	private static final float ATTACK_FRAME_SIZE = 384f;
+	
 	protected final EntityType type;
 	protected final String name;
     protected float speed = 200f;
@@ -31,7 +35,13 @@ public abstract class Entity {
     }
 
     public void update(float delta, float worldWidth, float worldHeight) {
-        if (state == EntityState.WALKING) {
+    	if (state == EntityState.SLASHING) {
+            stateTime += delta;
+            if (stateTime >= CharacterAssets.getSlashDuration()) {
+            	finishAttack();
+            }
+        }
+    	else if (state == EntityState.WALKING) {
             stateTime += delta;
             move(delta, worldWidth, worldHeight);
         }
@@ -39,6 +49,13 @@ public abstract class Entity {
 
 	public abstract void render(SpriteBatch batch);
 
+	protected void renderAttack(SpriteBatch batch, TextureRegion frame) {
+		float offsetX = (ATTACK_FRAME_SIZE - width) / 2f;
+		float offsetY = (ATTACK_FRAME_SIZE - height) / 2f;
+
+		batch.draw(frame, x - offsetX, y - offsetY, ATTACK_FRAME_SIZE, ATTACK_FRAME_SIZE);
+	}
+	
 	public void renderShadow(SpriteBatch batch, Texture shadowTexture) {
 	    float shadowWidth = width * 0.5f;
 	    float shadowHeight = height * 0.5f;
@@ -48,6 +65,16 @@ public abstract class Entity {
 	    float shadowY = y - (shadowHeight / 2f) + shadowYOffset ;
 
 		batch.draw(shadowTexture, shadowX, shadowY, shadowWidth, shadowHeight);
+	}
+	
+	public void attack() {
+		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+	        setState(EntityState.SLASHING);
+	    }
+	}
+	
+	protected void finishAttack() {
+	    setState(EntityState.IDLE);
 	}
 	
 	public void takeDamage(float damage) {
@@ -88,27 +115,37 @@ public abstract class Entity {
 	}
 	
 	public void moveUp() {
-	    setState(EntityState.WALKING);
-	    direction = EntityDirection.UP;
+		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			setState(EntityState.WALKING);
+			direction = EntityDirection.UP;
+		}
 	}
 
 	public void moveLeft() {
-	    setState(EntityState.WALKING);
-	    direction = EntityDirection.LEFT;
+		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			setState(EntityState.WALKING);
+			direction = EntityDirection.LEFT;
+		}
 	}
 
 	public void moveDown() {
-	    setState(EntityState.WALKING);
-	    direction = EntityDirection.DOWN;
+		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			setState(EntityState.WALKING);
+			direction = EntityDirection.DOWN;
+		}
 	}
 
 	public void moveRight() {
-	    setState(EntityState.WALKING);
-	    direction = EntityDirection.RIGHT;
+		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+		    setState(EntityState.WALKING);
+		    direction = EntityDirection.RIGHT;
+		}
 	}
 
 	public void setIdle() {
-	    setState(EntityState.IDLE);
+		if (state == EntityState.WALKING) {
+			setState(EntityState.IDLE);
+		}
 	}
 	
 	public boolean isAlive() {

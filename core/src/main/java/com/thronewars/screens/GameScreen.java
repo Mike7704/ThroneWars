@@ -91,8 +91,11 @@ public class GameScreen extends ScreenAdapter {
 	/**
 	 * Control the selected character
 	 */
-	private void controlCharacter() {		 
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+	private void controlCharacter() {
+		if (Gdx.input.justTouched()) {
+			player.attack();
+		}
+		else if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			player.moveUp();
 		}
 		else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
