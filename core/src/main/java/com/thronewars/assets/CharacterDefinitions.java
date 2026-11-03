@@ -15,8 +15,8 @@ public final class CharacterDefinitions {
 	        CharacterAnimation.IDLE,
 	        CharacterAnimation.WALK,
 	        //CharacterAnimation.HURT,
-	        CharacterAnimation.SLASH
-	        //CharacterAnimation.THRUST,
+	        CharacterAnimation.SLASH,
+	        CharacterAnimation.THRUST
 	        //CharacterAnimation.BACKSLASH
 		);
 

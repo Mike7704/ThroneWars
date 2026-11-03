@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.thronewars.assets.CharacterAssets;
+import com.thronewars.utils.RandomUtils;
 
 /**
  * Represents a generic entity with common properties and behaviours.
@@ -41,6 +42,12 @@ public abstract class Entity {
             	finishAttack();
             }
         }
+    	else if (state == EntityState.THRUSTING) {
+            stateTime += delta;
+            if (stateTime >= CharacterAssets.getThrustDuration()) {
+            	finishAttack();
+            }
+        }
     	else if (state == EntityState.WALKING) {
             stateTime += delta;
             move(delta, worldWidth, worldHeight);
@@ -69,7 +76,12 @@ public abstract class Entity {
 	
 	public void attack() {
 		if (state == EntityState.IDLE || state == EntityState.WALKING) {
-	        setState(EntityState.SLASHING);
+			if (RandomUtils.randomInt(0, 1) == 1) {
+				setState(EntityState.SLASHING);	
+			}
+			else {
+				setState(EntityState.THRUSTING);
+			}
 	    }
 	}
 	

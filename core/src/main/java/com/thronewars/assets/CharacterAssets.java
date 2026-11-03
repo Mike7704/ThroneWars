@@ -27,6 +27,9 @@ public class CharacterAssets {
     
     private static final int SLASH_FRAME_COUNT = 6;
     private static final float SLASH_FRAME_DURATION = 0.1f; // Seconds
+    
+    private static final int THRUST_FRAME_COUNT = 8;
+    private static final float THRUST_FRAME_DURATION = 0.1f; // Seconds
 
     private final Map<CharacterAnimation, Animation<TextureRegion>[]> animations =  new EnumMap<>(CharacterAnimation.class);
 
@@ -54,9 +57,24 @@ public class CharacterAssets {
 			}
 
 			switch (animation) {
-				case IDLE: animations.put(animation, loadIdleAnimations(texture)); break;
-				case WALK: animations.put(animation, loadWalkAnimations(texture)); break;
-				case SLASH: animations.put(animation, loadSlashAnimations(texture)); break;
+				case IDLE:
+					animations.put(animation, loadIdleAnimations(texture));
+					break;
+	
+				case WALK:
+					animations.put(animation, loadAnimations(texture, FRAME_WIDTH_64, FRAME_HEIGHT_64,
+							WALK_FRAME_COUNT, WALK_FRAME_DURATION, PlayMode.LOOP));
+					break;
+	
+				case SLASH:
+					animations.put(animation, loadAnimations(texture, FRAME_WIDTH_192, FRAME_HEIGHT_192,
+							SLASH_FRAME_COUNT, SLASH_FRAME_DURATION, PlayMode.NORMAL));
+					break;
+	
+				case THRUST:
+					animations.put(animation, loadAnimations(texture, FRAME_WIDTH_192, FRAME_HEIGHT_192,
+							THRUST_FRAME_COUNT, THRUST_FRAME_DURATION, PlayMode.NORMAL));
+					break;
 				
 				default: throw new UnsupportedOperationException("Animation layout not implemented: " + animation);
 			}
@@ -81,62 +99,42 @@ public class CharacterAssets {
 
 		return directionalAnimations;
     }
-
+    
     /**
-     * Extracts the walking frames and creates a looping animation for each direction.
-     *
-     * @param texture the walking sprite sheet
-     * @return an array of walking animations ordered up, left, down, right
-     */
+	 * Splits the sprite sheet into frames and creates an animation for each direction.
+	 *
+	 * @param texture the sprite sheet containing frames for all directions
+	 * @param frameWidth the width of each frame in pixels
+	 * @param frameHeight the height of each frame in pixels
+	 * @param frameCount the number of frames per direction
+	 * @param frameDuration the duration of each frame in seconds
+	 * @param playMode the play mode for the animation (e.g., LOOP, NORMAL)
+	 * @return an array of animations ordered up, left, down, right
+	 */
     @SuppressWarnings("unchecked")
-	private Animation<TextureRegion>[] loadWalkAnimations(Texture texture) {
-		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH_64, FRAME_HEIGHT_64);
+	private Animation<TextureRegion>[] loadAnimations(Texture texture, int frameWidth, int frameHeight, int frameCount,
+			float frameDuration, PlayMode playMode) {
 
-		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
+        TextureRegion[][] frames = TextureRegion.split(texture, frameWidth, frameHeight);
 
-		for (int direction = 0; direction < DIRECTION_COUNT; direction++) {
-			TextureRegion[] directionFrames = new TextureRegion[WALK_FRAME_COUNT];
+        Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
 
-			for (int frame = 0; frame < WALK_FRAME_COUNT; frame++) {
-				directionFrames[frame] = frames[direction][frame];
-			}
+        for (int direction = 0; direction < DIRECTION_COUNT; direction++) {
+            TextureRegion[] directionFrames = new TextureRegion[frameCount];
 
-			Animation<TextureRegion> animation = new Animation<>(WALK_FRAME_DURATION, directionFrames);
+            for (int frame = 0; frame < frameCount; frame++) {
+                directionFrames[frame] = frames[direction][frame];
+            }
 
-			animation.setPlayMode(PlayMode.LOOP);
-			directionalAnimations[direction] = animation;
-		}
+            Animation<TextureRegion> animation =
+                    new Animation<>(frameDuration, directionFrames);
 
-		return directionalAnimations;
-	}
+            animation.setPlayMode(playMode);
+            directionalAnimations[direction] = animation;
+        }
 
-    /**
-     * Extracts the slash frames and creates an animation for each direction.
-     *
-     * @param texture the slash sprite sheet
-     * @return an array of slash animations ordered up, left, down, right
-     */
-    @SuppressWarnings("unchecked")
-	private Animation<TextureRegion>[] loadSlashAnimations(Texture texture) {
-		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH_192, FRAME_HEIGHT_192);
-
-		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
-
-		for (int direction = 0; direction < DIRECTION_COUNT; direction++) {
-			TextureRegion[] directionFrames = new TextureRegion[SLASH_FRAME_COUNT];
-
-			for (int frame = 0; frame < SLASH_FRAME_COUNT; frame++) {
-				directionFrames[frame] = frames[direction][frame];
-			}
-
-			Animation<TextureRegion> animation = new Animation<>(SLASH_FRAME_DURATION, directionFrames);
-
-			animation.setPlayMode(PlayMode.NORMAL);
-			directionalAnimations[direction] = animation;
-		}
-
-		return directionalAnimations;
-	}
+        return directionalAnimations;
+    }
     
     /**
      * Returns the frame for the specified animation, direction, and elapsed time.
@@ -169,5 +167,9 @@ public class CharacterAssets {
 		
 	public static float getSlashDuration() {
 	    return SLASH_FRAME_COUNT * SLASH_FRAME_DURATION;
+	}
+	
+	public static float getThrustDuration() {
+	    return THRUST_FRAME_COUNT * THRUST_FRAME_DURATION;
 	}
 }
