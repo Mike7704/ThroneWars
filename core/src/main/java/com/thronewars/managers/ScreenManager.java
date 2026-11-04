@@ -19,11 +19,13 @@ public class ScreenManager {
 	public static final float VIEW_HEIGHT = 1080f;
 	
 	private final GdxGame game;
+	private final AudioManager audioManager;
 	private final Map<ScreenType, Screen> screens = new EnumMap<>(ScreenType.class);
 	private ScreenType currentScreenType;
 
-	public ScreenManager(GdxGame game) {
+	public ScreenManager(GdxGame game, AudioManager audioManager) {
 		this.game = game;
+		this.audioManager = audioManager;
 		
 		// Initialise screens
 		screens.put(ScreenType.MAIN_MENU, new MainMenuScreen(game));
@@ -40,7 +42,7 @@ public class ScreenManager {
 		if (type == null) {
 			throw new IllegalArgumentException("The screen type cannot be null.");
 		}
-
+		
 		Gdx.app.postRunnable(() -> {
 			if (type == currentScreenType) {
 				return;
@@ -51,6 +53,12 @@ public class ScreenManager {
 			if (nextScreen == null) {
 				throw new IllegalStateException("No screen registered for type: " + type);
 			}
+			
+			switch (type) {
+				case MAIN_MENU: audioManager.playMusic(audioManager.MAIN_MENU_MUSIC); break;
+				//case GAME: audioManager.playMusic(audioManager.GAME_MUSIC); break;
+				default: break; // Continue playing the current music
+		}
 
 		    game.setScreen(nextScreen);
 			currentScreenType = type;

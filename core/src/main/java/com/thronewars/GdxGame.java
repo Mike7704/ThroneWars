@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thronewars.assets.GameAssets;
+import com.thronewars.managers.AudioManager;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
 import com.thronewars.managers.SettingsManager;
@@ -21,6 +22,7 @@ public class GdxGame extends Game {
 	private SettingsManager settingsManager;
 	private UIManager uiManager;
 	private ScreenManager screenManager;
+	private AudioManager audioManager;
 	
 	@Override
 	public void create() {
@@ -29,10 +31,11 @@ public class GdxGame extends Game {
 		gameAssets = new GameAssets();
 		gameAssets.load();
 		
+		audioManager = new AudioManager();
 		settingsManager = new SettingsManager();
 		uiManager = new UIManager(gameAssets);
-		screenManager = new ScreenManager(this);
-
+		screenManager = new ScreenManager(this, audioManager);
+				
 		screenManager.showScreen(ScreenType.MAIN_MENU);
 	}
 
@@ -74,9 +77,17 @@ public class GdxGame extends Game {
 	public ScreenManager getScreenManager() {
 		return screenManager;
 	}
+	
+	public AudioManager getAudioManager() {
+	    return audioManager;
+	}
 
 	@Override
 	public void dispose() {
+		if (audioManager != null) {
+			audioManager.dispose();
+		}
+		
 		if (screenManager != null) {
 			screenManager.dispose();
 		}
