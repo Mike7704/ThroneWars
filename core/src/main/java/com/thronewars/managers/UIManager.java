@@ -2,6 +2,7 @@ package com.thronewars.managers;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider.SliderStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.thronewars.assets.GameAssets;
@@ -18,6 +19,8 @@ public class UIManager {
 	private final LabelStyle labelLargeStyle;
 	private final LabelStyle labelMediumStyle;
 	private final LabelStyle labelSmallStyle;
+	
+	private final SliderStyle sliderStyle;
 
 	public UIManager(GameAssets assets) {
 		atlas = assets.getUIAtlas();
@@ -38,6 +41,11 @@ public class UIManager {
 		
 		labelSmallStyle = new LabelStyle();
 		labelSmallStyle.font = assets.getSmallFont();
+		
+		// Sliders
+		sliderStyle = new SliderStyle();
+		sliderStyle.background = new TextureRegionDrawable(atlas.findRegion("button"));
+		sliderStyle.knob = new TextureRegionDrawable(atlas.findRegion("button-down")); // Temp
 	}
 
 	public TextButtonStyle getButtonStyle() {
@@ -54,5 +62,9 @@ public class UIManager {
 	
 	public LabelStyle getLabelSmallStyle() {
 		return labelSmallStyle;
+	}
+	
+	public SliderStyle getSliderStyle() {
+		return sliderStyle;
 	}
 }

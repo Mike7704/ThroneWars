@@ -31,8 +31,8 @@ public class GdxGame extends Game {
 		gameAssets = new GameAssets();
 		gameAssets.load();
 		
-		audioManager = new AudioManager();
 		settingsManager = new SettingsManager();
+		audioManager = new AudioManager(this);
 		uiManager = new UIManager(gameAssets);
 		screenManager = new ScreenManager(this, audioManager);
 				

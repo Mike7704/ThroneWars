@@ -2,18 +2,21 @@ package com.thronewars.managers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.thronewars.GdxGame;
 
 /**
  * Manages background music and sound effects.
  */
 public class AudioManager {
-
-	private float musicVolume = 0.33f;
+	
+	private final GdxGame game;
 	
 	private Music currentMusic;
 	public final Music MAIN_MENU_MUSIC;
 
-	public AudioManager() {
+	public AudioManager(GdxGame game) {
+		this.game = game;
+		
 		MAIN_MENU_MUSIC = Gdx.audio.newMusic(Gdx.files.internal("audio/music/MainMenu.mp3"));
 		MAIN_MENU_MUSIC.setLooping(true);
 	}
@@ -26,7 +29,7 @@ public class AudioManager {
         stopMusic();
 
         currentMusic = music;
-        currentMusic.setVolume(musicVolume);
+        currentMusic.setVolume(game.getSettingsManager().getMusicVolume());
         currentMusic.play();
     }
 	
@@ -48,13 +51,25 @@ public class AudioManager {
 		}
 	}
 	
-	public void setVolume(float volume) {
-        musicVolume = Math.max(0f, Math.min(volume, 1f));
+	public void setMusicVolume(float volume) {
+	    game.getSettingsManager().setMusicVolume(volume);
 
-        if (currentMusic != null) {
-            currentMusic.setVolume(musicVolume);
-        }
-    }
+	    if (currentMusic != null) {
+	        currentMusic.setVolume(game.getSettingsManager().getMusicVolume());
+	    }
+	}
+
+	public void saveMusicVolume() {
+	    game.getSettingsManager().saveMusicVolume();
+	}
+
+	public void setSoundEffectsVolume(float volume) {
+	    game.getSettingsManager().setSoundEffectsVolume(volume);
+	}
+
+	public void saveSoundEffectsVolume() {
+	    game.getSettingsManager().saveSoundEffectsVolume();
+	}
 
 	public void dispose() {
 		stopMusic();
