@@ -19,6 +19,6 @@ public class EntityFactory {
     public Entity createJonSnow(float x, float y) {
 		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.JON_SNOW);
 
-        return new JonSnow(assets, x, y);
+        return new JonSnow(assets, x, y, game.getAudioManager());
     }
 }

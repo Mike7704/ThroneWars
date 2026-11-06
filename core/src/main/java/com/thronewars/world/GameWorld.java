@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.Array;
+import com.thronewars.GdxGame;
 import com.thronewars.entities.world.Ore;
 
 /**
@@ -19,13 +20,16 @@ public class GameWorld {
 
 	private static final float MAP_SCALE = 2f;
 	
+	private final GdxGame game;
+	
     private final TiledMap tiledMap;
     private final OrthogonalTiledMapRenderer mapRenderer;
 
     // World entity objects
     private final Array<Ore> ores = new Array<>();
     
-    public GameWorld() {
+    public GameWorld(GdxGame game) {
+    	this.game = game;
         tiledMap = new TmxMapLoader().load("maps/the_north/the_north.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, MAP_SCALE);
         
@@ -47,7 +51,7 @@ public class GameWorld {
 				TiledMapTileMapObject tileObject = (TiledMapTileMapObject) object;
 
 				if (tileObject.getTextureRegion() != null) {
-					ores.add(new Ore(tileObject, MAP_SCALE));
+					ores.add(new Ore(tileObject, MAP_SCALE, game.getAudioManager()));
 				}
 			}
 		}

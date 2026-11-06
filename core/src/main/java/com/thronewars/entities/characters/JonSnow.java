@@ -6,6 +6,7 @@ import com.thronewars.assets.CharacterAnimation;
 import com.thronewars.assets.CharacterAssets;
 import com.thronewars.entities.Entity;
 import com.thronewars.entities.EntityType;
+import com.thronewars.managers.AudioManager;
 
 /**
  * Represents Jon Snow entity in the game.
@@ -18,8 +19,8 @@ public class JonSnow extends Entity {
 
     private final CharacterAssets characterAssets;
 
-    public JonSnow(CharacterAssets characterAssets, float x, float y) {
-        super(EntityType.HERO, NAME, x, y);
+    public JonSnow(CharacterAssets characterAssets, float x, float y, AudioManager audioManager) {
+        super(EntityType.HERO, NAME, x, y, audioManager);
 
         this.characterAssets = characterAssets;
 

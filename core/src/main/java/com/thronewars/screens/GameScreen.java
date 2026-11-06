@@ -48,7 +48,7 @@ public class GameScreen extends ScreenAdapter {
 		gameViewport.getCamera().position.set(ScreenManager.VIEW_WIDTH / 2f, ScreenManager.VIEW_HEIGHT / 2f, 0f);
 		gameViewport.getCamera().update();
 		
-		world = new GameWorld();
+		world = new GameWorld(game);
 		
 		shadowTexture = game.getGameAssets().getShadowTexture();
 		

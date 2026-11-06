@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.thronewars.entities.Entity;
 import com.thronewars.entities.EntityType;
+import com.thronewars.managers.AudioManager;
 
 /**
  * Represents a mineable ore deposit in the world.
@@ -18,8 +19,8 @@ public class Ore extends Entity {
 	
 	private final TextureRegion textureRegion;
 
-	public Ore(TiledMapTileMapObject object, float mapScale) {
-		super(EntityType.ORE, NAME, object.getX() * mapScale, object.getY() * mapScale);
+	public Ore(TiledMapTileMapObject object, float mapScale, AudioManager audioManager) {
+		super(EntityType.ORE, NAME, object.getX() * mapScale, object.getY() * mapScale, audioManager);
 
 		textureRegion = object.getTextureRegion();
 

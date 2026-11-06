@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.thronewars.assets.CharacterAssets;
+import com.thronewars.managers.AudioManager;
 import com.thronewars.utils.RandomUtils;
 
 /**
@@ -12,6 +13,8 @@ import com.thronewars.utils.RandomUtils;
 public abstract class Entity {
 
 	private static final float ATTACK_FRAME_SIZE = 384f;
+	
+	protected final AudioManager audioManager;
 	
 	protected final EntityType type;
 	protected final String name;
@@ -28,11 +31,12 @@ public abstract class Entity {
     protected EntityDirection direction = EntityDirection.DOWN;
     protected float stateTime = 0f;
     
-    protected Entity(EntityType type, String name, float x, float y) {
+    protected Entity(EntityType type, String name, float x, float y, AudioManager audioManager) {
         this.type = type;
         this.name = name;
         this.x = x;
         this.y = y;
+        this.audioManager = audioManager;
     }
 
     public void update(float delta, float worldWidth, float worldHeight) {
@@ -82,6 +86,7 @@ public abstract class Entity {
 			else {
 				setState(EntityState.THRUSTING);
 			}
+			audioManager.playSwordAttackSound();
 	    }
 	}
 	
