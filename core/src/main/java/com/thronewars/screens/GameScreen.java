@@ -64,6 +64,8 @@ public class GameScreen extends ScreenAdapter {
 		player = entityFactory.createJonSnow(100f, 300f);
 		entities.add(player);
 
+		entities.add(entityFactory.createGreybeard(200f, 300f));
+		
 		// World entity objects
 	    entities.addAll(world.getOres());
 	}

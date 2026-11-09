@@ -15,10 +15,8 @@ import com.thronewars.entities.EntityDirection;
  */
 public class CharacterAssets {
 
-    private static final int FRAME_WIDTH_64 = 64;
-    private static final int FRAME_HEIGHT_64 = 64;
-    private static final int FRAME_WIDTH_192 = 192;
-    private static final int FRAME_HEIGHT_192 = 192;
+    private static final int FRAME_SIZE_64 = 64;
+    private static final int FRAME_SIZE_192 = 192;
     
     private static final int DIRECTION_COUNT = 4;
     
@@ -62,17 +60,17 @@ public class CharacterAssets {
 					break;
 	
 				case WALK:
-					animations.put(animation, loadAnimations(texture, FRAME_WIDTH_64, FRAME_HEIGHT_64,
+					animations.put(animation, loadAnimations(texture, FRAME_SIZE_64, FRAME_SIZE_64,
 							WALK_FRAME_COUNT, WALK_FRAME_DURATION, PlayMode.LOOP));
 					break;
 	
 				case SLASH:
-					animations.put(animation, loadAnimations(texture, FRAME_WIDTH_192, FRAME_HEIGHT_192,
+					animations.put(animation, loadAnimations(texture, FRAME_SIZE_192, FRAME_SIZE_192,
 							SLASH_FRAME_COUNT, SLASH_FRAME_DURATION, PlayMode.NORMAL));
 					break;
 	
 				case THRUST:
-					animations.put(animation, loadAnimations(texture, FRAME_WIDTH_192, FRAME_HEIGHT_192,
+					animations.put(animation, loadAnimations(texture, FRAME_SIZE_192, FRAME_SIZE_192,
 							THRUST_FRAME_COUNT, THRUST_FRAME_DURATION, PlayMode.NORMAL));
 					break;
 				
@@ -89,7 +87,7 @@ public class CharacterAssets {
      */
 	@SuppressWarnings("unchecked")
 	private Animation<TextureRegion>[] loadIdleAnimations(Texture texture) {
-		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_WIDTH_64, FRAME_HEIGHT_64);
+		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_SIZE_64, FRAME_SIZE_64);
 
 		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
 

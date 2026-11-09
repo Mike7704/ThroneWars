@@ -19,6 +19,21 @@ public final class CharacterDefinitions {
 	        CharacterAnimation.THRUST
 	        //CharacterAnimation.BACKSLASH
 		);
+	
+	public static final CharacterDefinition GREYBEARD =
+		new CharacterDefinition(
+	        "greybeard",
+	        CharacterAnimation.IDLE,
+	        CharacterAnimation.WALK,
+	        //CharacterAnimation.HURT,
+	        CharacterAnimation.SLASH,
+	        CharacterAnimation.THRUST
+	        //CharacterAnimation.BACKSLASH
+		);
 
-	public static final List<CharacterDefinition> ALL = Collections.unmodifiableList(Arrays.asList(JON_SNOW));
+	public static final List<CharacterDefinition> ALL =
+		Collections.unmodifiableList(Arrays.asList(
+			JON_SNOW,
+			GREYBEARD
+		));
 }

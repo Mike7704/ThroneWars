@@ -2,7 +2,6 @@ package com.thronewars.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.thronewars.assets.CharacterAssets;
 import com.thronewars.managers.AudioManager;
 import com.thronewars.utils.RandomUtils;
@@ -12,8 +11,6 @@ import com.thronewars.utils.RandomUtils;
  */
 public abstract class Entity {
 
-	private static final float ATTACK_FRAME_SIZE = 384f;
-	
 	protected final AudioManager audioManager;
 	
 	protected final EntityType type;
@@ -59,13 +56,6 @@ public abstract class Entity {
     }
 
 	public abstract void render(SpriteBatch batch);
-
-	protected void renderAttack(SpriteBatch batch, TextureRegion frame) {
-		float offsetX = (ATTACK_FRAME_SIZE - width) / 2f;
-		float offsetY = (ATTACK_FRAME_SIZE - height) / 2f;
-
-		batch.draw(frame, x - offsetX, y - offsetY, ATTACK_FRAME_SIZE, ATTACK_FRAME_SIZE);
-	}
 	
 	public void renderShadow(SpriteBatch batch, Texture shadowTexture) {
 	    float shadowWidth = width * 0.5f;

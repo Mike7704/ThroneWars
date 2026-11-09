@@ -3,6 +3,7 @@ package com.thronewars.entities;
 import com.thronewars.GdxGame;
 import com.thronewars.assets.CharacterAssets;
 import com.thronewars.assets.CharacterDefinitions;
+import com.thronewars.entities.characters.Greybeard;
 import com.thronewars.entities.characters.JonSnow;
 
 /**
@@ -20,5 +21,11 @@ public class EntityFactory {
 		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.JON_SNOW);
 
         return new JonSnow(assets, x, y, game.getAudioManager());
+    }
+    
+    public Entity createGreybeard(float x, float y) {
+		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.GREYBEARD);
+
+        return new Greybeard(assets, x, y, game.getAudioManager());
     }
 }
