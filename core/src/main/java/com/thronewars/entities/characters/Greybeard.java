@@ -13,6 +13,7 @@ public class Greybeard extends EntityCharacter {
 	private static final String NAME = "Greybeard";
 	private static final float SPEED = 200f;
 	private static final float MAX_HEALTH = 100f;
+    private static final int COST = 50;
 
 	public Greybeard(CharacterAssets characterAssets, float x, float y, AudioManager audioManager) {
 		super(EntityType.HERO, NAME, x, y, audioManager, characterAssets);
@@ -20,5 +21,6 @@ public class Greybeard extends EntityCharacter {
 		speed = SPEED;
 		maxHealth = MAX_HEALTH;
 		health = maxHealth;
+		cost = COST;
 	}
 }

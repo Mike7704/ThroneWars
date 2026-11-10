@@ -17,13 +17,13 @@ public class EntityFactory {
         this.game = game;
     }
 
-    public Entity createJonSnow(float x, float y) {
+    public JonSnow createJonSnow(float x, float y) {
 		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.JON_SNOW);
 
         return new JonSnow(assets, x, y, game.getAudioManager());
     }
     
-    public Entity createGreybeard(float x, float y) {
+    public Greybeard createGreybeard(float x, float y) {
 		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.GREYBEARD);
 
         return new Greybeard(assets, x, y, game.getAudioManager());

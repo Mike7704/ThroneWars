@@ -48,4 +48,8 @@ public abstract class EntityCharacter extends Entity {
 
 		batch.draw(frame, x - offsetX, y - offsetY, ATTACK_FRAME_SIZE, ATTACK_FRAME_SIZE);
 	}
+	
+	public CharacterAssets getCharacterAssets() {
+	    return characterAssets;
+	}
 }

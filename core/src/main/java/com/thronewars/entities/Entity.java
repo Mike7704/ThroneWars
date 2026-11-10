@@ -18,6 +18,7 @@ public abstract class Entity {
     protected float speed = 200f;
     protected float health = 10f;
     protected float maxHealth = 10f;
+    protected int cost = 0;
 	
 	protected float x;
     protected float y;
@@ -210,6 +211,14 @@ public abstract class Entity {
 		this.maxHealth = Math.max(0, maxHealth);
 	}
 
+	public int getCost() {
+		return cost;
+	}
+	
+	public void setCost(int cost) {
+		this.cost = cost;
+	}
+	
 	public float getX() {
 		return x;
 	}

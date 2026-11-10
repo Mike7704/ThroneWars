@@ -13,6 +13,7 @@ public class JonSnow extends EntityCharacter {
     private static final String NAME = "Jon Snow";
     private static final float SPEED = 200f;
     private static final float MAX_HEALTH = 100f;
+    private static final int COST = 100;
 
     public JonSnow(CharacterAssets characterAssets, float x, float y, AudioManager audioManager) {
         super(EntityType.HERO, NAME, x, y, audioManager, characterAssets);
@@ -20,5 +21,6 @@ public class JonSnow extends EntityCharacter {
         speed = SPEED;
         maxHealth = MAX_HEALTH;
         health = maxHealth;
+        cost = COST;
     }
 }

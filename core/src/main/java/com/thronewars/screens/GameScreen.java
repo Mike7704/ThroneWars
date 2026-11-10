@@ -15,8 +15,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
 import com.thronewars.entities.Entity;
 import com.thronewars.entities.EntityFactory;
+import com.thronewars.entities.PlayerCharacterRoster;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
+import com.thronewars.ui.GameHUD;
 import com.thronewars.world.GameWorld;
 
 /**
@@ -33,9 +35,12 @@ public class GameScreen extends ScreenAdapter {
 	private final FitViewport gameViewport;
 	
 	private final GameWorld world;
+	private final GameHUD gameHUD;
 	
 	private final Texture shadowTexture;
 	
+	private final EntityFactory entityFactory;
+	private final PlayerCharacterRoster playerCharacterRoster;
 	private final Array<Entity> entities = new Array<>();
 	private Entity player;
 	
@@ -49,18 +54,22 @@ public class GameScreen extends ScreenAdapter {
 		gameViewport.getCamera().update();
 		
 		world = new GameWorld(game);
+
+		entityFactory = new EntityFactory(game);
 		
+		playerCharacterRoster = new PlayerCharacterRoster(entityFactory);
+		
+		gameHUD = new GameHUD(game.getUIManager(), playerCharacterRoster);
+
 		shadowTexture = game.getGameAssets().getShadowTexture();
 		
-		addEntities();
+		createEntities();
 	}
 	
 	/**
-	 * Adds game entities.
+	 * Adds entities 
 	 */
-	private void addEntities() {
-		EntityFactory entityFactory = new EntityFactory(game);
-
+	private void createEntities() {
 		player = entityFactory.createJonSnow(100f, 300f);
 		entities.add(player);
 
@@ -74,7 +83,7 @@ public class GameScreen extends ScreenAdapter {
 	public void render(float delta) {
 		input(delta);
 		update(delta);
-		draw();
+		draw(delta);
 	}
 
 	private void input(float delta) {
@@ -94,7 +103,7 @@ public class GameScreen extends ScreenAdapter {
 	 * Control the selected character
 	 */
 	private void controlCharacter() {
-		if (Gdx.input.justTouched()) {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			player.attack();
 		}
 		else if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -145,7 +154,7 @@ public class GameScreen extends ScreenAdapter {
 		}
 	}
 
-	private void draw() {
+	private void draw(float delta) {
 	    ScreenUtils.clear(Color.BLACK);
 
 	    gameViewport.apply();
@@ -170,10 +179,24 @@ public class GameScreen extends ScreenAdapter {
 		}
 		
 		batch.end();
+		
+		// HUD
+		gameHUD.render(delta);
 	}
 	
 	@Override
 	public void resize(int width, int height) {
 		gameViewport.update(width, height, false);
+		gameHUD.resize(width, height);
+	}
+	
+	@Override
+	public void show() {
+	    Gdx.input.setInputProcessor(gameHUD.getStage());
+	}
+	
+	@Override
+	public void dispose() {
+	    gameHUD.dispose();
 	}
 }
