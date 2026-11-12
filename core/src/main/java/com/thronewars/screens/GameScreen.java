@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
 import com.thronewars.entities.Entity;
+import com.thronewars.entities.EntityCharacter;
 import com.thronewars.entities.EntityFactory;
 import com.thronewars.entities.PlayerCharacterRoster;
 import com.thronewars.managers.ScreenManager;
@@ -44,6 +45,13 @@ public class GameScreen extends ScreenAdapter {
 	private final Array<Entity> entities = new Array<>();
 	private Entity player;
 	
+	private int playerHealth = 1000;
+	private int playerGold = 500;
+	private int playerUnitCount = 0;
+	private int opponentHealth = 1000;
+	private int opponentGold = 500;
+	private int opponentUnitCount = 0;
+	
 	public GameScreen(GdxGame game) {
 		this.game = game;
 		this.batch = game.getBatch();
@@ -59,7 +67,7 @@ public class GameScreen extends ScreenAdapter {
 		
 		playerCharacterRoster = new PlayerCharacterRoster(entityFactory);
 		
-		gameHUD = new GameHUD(game.getUIManager(), playerCharacterRoster);
+		gameHUD = new GameHUD(game.getUIManager(), this, playerCharacterRoster);
 
 		shadowTexture = game.getGameAssets().getShadowTexture();
 		
@@ -72,13 +80,32 @@ public class GameScreen extends ScreenAdapter {
 	private void createEntities() {
 		player = entityFactory.createJonSnow(100f, 300f);
 		entities.add(player);
-
-		entities.add(entityFactory.createGreybeard(200f, 300f));
+		playerUnitCount++;
 		
 		// World entity objects
 	    entities.addAll(world.getOres());
 	}
 
+	
+	public void addCharacterUnit(EntityCharacter character) {
+		int cost = character.getCost();
+
+		// Check whether the player can afford the unit
+	    if (playerGold < cost) {
+	        return;
+	    }
+	    
+	    // Temp spawn values
+	    float spawnX = player.getX();
+	    float spawnY = player.getY();
+	    
+	    EntityCharacter newCharacter = entityFactory.createCharacter(character, spawnX, spawnY);
+	    entities.add(newCharacter);
+
+	    playerGold -= cost;
+	    playerUnitCount++;
+	}
+	
 	@Override
 	public void render(float delta) {
 		input(delta);
@@ -152,6 +179,8 @@ public class GameScreen extends ScreenAdapter {
 		for (Entity entity : entities) {
 		    entity.update(delta, WORLD_WIDTH, WORLD_HEIGHT);
 		}
+		
+	    gameHUD.updateValues();
 	}
 
 	private void draw(float delta) {
@@ -198,5 +227,29 @@ public class GameScreen extends ScreenAdapter {
 	@Override
 	public void dispose() {
 	    gameHUD.dispose();
+	}
+	
+	public int getPlayerHealth() {
+	    return playerHealth;
+	}
+
+	public int getPlayerGold() {
+	    return playerGold;
+	}
+
+	public int getPlayerUnitCount() {
+	    return playerUnitCount;
+	}
+
+	public int getOpponentHealth() {
+	    return opponentHealth;
+	}
+	
+	public int getOpponentGold() {
+	    return opponentGold;
+	}
+
+	public int getOpponentUnitCount() {
+	    return opponentUnitCount;
 	}
 }

@@ -1,6 +1,7 @@
 package com.thronewars.entities.characters;
 
 import com.thronewars.assets.CharacterAssets;
+import com.thronewars.entities.CharacterType;
 import com.thronewars.entities.EntityCharacter;
 import com.thronewars.entities.EntityType;
 import com.thronewars.managers.AudioManager;
@@ -16,7 +17,7 @@ public class Greybeard extends EntityCharacter {
     private static final int COST = 50;
 
 	public Greybeard(CharacterAssets characterAssets, float x, float y, AudioManager audioManager) {
-		super(EntityType.HERO, NAME, x, y, audioManager, characterAssets);
+		super(EntityType.HERO, CharacterType.GREYBEARD, NAME, x, y, audioManager, characterAssets);
 
 		speed = SPEED;
 		maxHealth = MAX_HEALTH;

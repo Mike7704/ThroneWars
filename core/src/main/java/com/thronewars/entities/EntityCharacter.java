@@ -13,10 +13,13 @@ public abstract class EntityCharacter extends Entity {
 
 	private static final float ATTACK_FRAME_SIZE = 384f;
 
+	private final CharacterType characterType;
+	
 	protected final CharacterAssets characterAssets;
 
-	protected EntityCharacter(EntityType type, String name, float x, float y, AudioManager audioManager, CharacterAssets characterAssets) {
+	protected EntityCharacter(EntityType type, CharacterType characterType, String name, float x, float y, AudioManager audioManager, CharacterAssets characterAssets) {
 		super(type, name, x, y, audioManager);
+		this.characterType = characterType;
 		this.characterAssets = characterAssets;
 	}
 
@@ -47,6 +50,10 @@ public abstract class EntityCharacter extends Entity {
 		float offsetY = (ATTACK_FRAME_SIZE - height) / 2f;
 
 		batch.draw(frame, x - offsetX, y - offsetY, ATTACK_FRAME_SIZE, ATTACK_FRAME_SIZE);
+	}
+	
+	public CharacterType getCharacterType() {
+	    return characterType;
 	}
 	
 	public CharacterAssets getCharacterAssets() {

@@ -11,21 +11,38 @@ import com.thronewars.entities.characters.JonSnow;
  */
 public class EntityFactory {
 
-    private final GdxGame game;
+	private final GdxGame game;
 
-    public EntityFactory(GdxGame game) {
-        this.game = game;
-    }
+	public EntityFactory(GdxGame game) {
+		this.game = game;
+	}
 
-    public JonSnow createJonSnow(float x, float y) {
+	/**
+	 * Creates a character entity based on the provided character definition and position.
+	 *
+	 * @param character The character definition to create.
+	 * @param x The x-coordinate for the character's initial position.
+	 * @param y The y-coordinate for the character's initial position.
+	 * @return A new instance of the specified character entity.
+	 */
+	public EntityCharacter createCharacter(EntityCharacter character, float x, float y) {
+		switch (character.getCharacterType()) {
+			case JON_SNOW: return createJonSnow(x, y);
+			case GREYBEARD: return createGreybeard(x, y);
+	
+			default: throw new IllegalArgumentException("Unsupported character type: " + character.getCharacterType());
+		}
+	}
+
+	public JonSnow createJonSnow(float x, float y) {
 		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.JON_SNOW);
 
-        return new JonSnow(assets, x, y, game.getAudioManager());
-    }
-    
-    public Greybeard createGreybeard(float x, float y) {
+		return new JonSnow(assets, x, y, game.getAudioManager());
+	}
+
+	public Greybeard createGreybeard(float x, float y) {
 		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.GREYBEARD);
 
-        return new Greybeard(assets, x, y, game.getAudioManager());
-    }
+		return new Greybeard(assets, x, y, game.getAudioManager());
+	}
 }
