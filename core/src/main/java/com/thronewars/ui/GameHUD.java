@@ -66,7 +66,7 @@ public class GameHUD {
 
 			unitsTable.add(unitButton).width(200f).height(90f).padRight(10f);
 			
-			unitButton.setOnClick(() -> gameScreen.addCharacterUnit(unit));
+			unitButton.setOnClick(() -> gameScreen.recruitUnit(unit));
 		}
 
 		// Game information
@@ -92,7 +92,7 @@ public class GameHUD {
 	public void updateValues() {
 		playerBaseHealthLabel.setText("Your Base: " + gameScreen.getPlayerHealth());
 		goldLabel.setText("Gold: " + gameScreen.getPlayerGold());
-		unitCountLabel.setText("Units: " + gameScreen.getPlayerUnitCount());
+		unitCountLabel.setText("Units: " + gameScreen.getPlayerUnits().size);
 		
 		enemyBaseHealthLabel.setText("Enemy Base: " + gameScreen.getOpponentHealth());
 	}

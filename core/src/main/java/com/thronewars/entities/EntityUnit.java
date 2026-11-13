@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.thronewars.assets.UnitAnimation;
 import com.thronewars.assets.UnitAssets;
 import com.thronewars.managers.AudioManager;
+import com.thronewars.world.Waypoint;
 
 /**
  * Represents an animated character unit with shared animation rendering behaviour.
@@ -16,6 +17,8 @@ public abstract class EntityUnit extends Entity {
 	private final UnitType unitType;
 	
 	protected final UnitAssets unitAssets;
+	
+	private Waypoint assignedWaypoint;
 
 	protected EntityUnit(EntityType type, UnitType unitType, String name, float x, float y, AudioManager audioManager, UnitAssets unitAssets) {
 		super(type, name, x, y, audioManager);
@@ -50,6 +53,14 @@ public abstract class EntityUnit extends Entity {
 		float offsetY = (ATTACK_FRAME_SIZE - height) / 2f;
 
 		batch.draw(frame, x - offsetX, y - offsetY, ATTACK_FRAME_SIZE, ATTACK_FRAME_SIZE);
+	}
+	
+	public void setAssignedWaypoint(Waypoint waypoint) {
+	    this.assignedWaypoint = waypoint;
+	}
+
+	public Waypoint getAssignedWaypoint() {
+	    return assignedWaypoint;
 	}
 	
 	public UnitType getUnitType() {

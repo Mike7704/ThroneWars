@@ -25,6 +25,10 @@ public abstract class Entity {
     protected float width = 128f;
     protected float height = 128f;
 	
+    private float targetX;
+    private float targetY;
+    private boolean movingToTarget = false;
+    
     protected EntityState state = EntityState.IDLE;
     protected EntityDirection direction = EntityDirection.DOWN;
     protected float stateTime = 0f;
@@ -37,7 +41,7 @@ public abstract class Entity {
         this.audioManager = audioManager;
     }
 
-    public void update(float delta, float worldWidth, float worldHeight) {
+    public void update(float delta, float worldWidth, float worldMinY, float worldMaxY) {
     	if (state == EntityState.SLASHING) {
             stateTime += delta;
             if (stateTime >= UnitAssets.getSlashDuration()) {
@@ -51,9 +55,14 @@ public abstract class Entity {
             }
         }
     	else if (state == EntityState.WALKING) {
-            stateTime += delta;
-            move(delta, worldWidth, worldHeight);
-        }
+    	    stateTime += delta;
+
+    	    if (movingToTarget) {
+    	        moveTowardsTarget(delta, worldWidth, worldMinY, worldMaxY);
+    	    } else {
+    	        move(delta, worldWidth, worldMinY, worldMaxY);
+    	    }
+    	}
     }
 
 	public abstract void render(SpriteBatch batch);
@@ -92,8 +101,59 @@ public abstract class Entity {
 
 		health = Math.max(0, health - damage);
 	}
+	
+	public void moveTo(float targetX, float targetY) {
+	    this.targetX = targetX;
+	    this.targetY = targetY;
 
-	private void move(float delta, float worldWidth, float worldHeight) {
+	    float dx = targetX - x;
+	    float dy = targetY - y;
+
+	    if (dx * dx + dy * dy < 1f) {
+	        movingToTarget = false;
+	        setIdle();
+	        return;
+	    }
+
+	    movingToTarget = true;
+	    setState(EntityState.WALKING);
+	}
+	
+	private void moveTowardsTarget(float delta, float worldWidth, float worldMinY, float worldMaxY) {
+		float dx = targetX - x;
+		float dy = targetY - y;
+
+		float distance = (float) Math.sqrt(dx * dx + dy * dy);
+		float movement = speed * delta;
+
+		if (distance <= movement || distance == 0f) {
+		    x = targetX;
+		    y = targetY;
+
+		    keepInsideWorld(worldWidth, worldMinY, worldMaxY);
+
+		    movingToTarget = false;
+		    setIdle();
+		    return;
+		}
+
+		float directionX = dx / distance;
+		float directionY = dy / distance;
+
+		x += directionX * movement;
+		y += directionY * movement;
+
+		// Face whichever direction has the greater movement component.
+		if (Math.abs(dx) > Math.abs(dy)) {
+			direction = dx > 0 ? EntityDirection.RIGHT : EntityDirection.LEFT;
+		} else {
+			direction = dy > 0 ? EntityDirection.UP : EntityDirection.DOWN;
+		}
+
+		keepInsideWorld(worldWidth, worldMinY, worldMaxY);
+	}
+
+	private void move(float delta, float worldWidth, float worldMinY, float worldMaxY) {
 	    float distance = speed * delta;
 
 	    switch (direction) {
@@ -111,23 +171,17 @@ public abstract class Entity {
 	            break;
 	    }
 	    
-	    keepInsideWorld(worldWidth, worldHeight);
+	    keepInsideWorld(worldWidth, worldMinY, worldMaxY);
 	}
 	
-	protected void keepInsideWorld(float worldWidth, float worldHeight) {
-		float minY = Math.round((worldHeight * 0.24f) / 10f) * 10f;
-	    float maxY = Math.round((worldHeight * 0.57f) / 10f) * 10f;
-	    
+	protected void keepInsideWorld(float worldWidth, float worldMinY, float worldMaxY) {
 	    x = Math.max(0f, Math.min(x, worldWidth - width));
-	    y = Math.max(minY, Math.min(y, maxY - height));
+	    y = Math.max(worldMinY, Math.min(y, worldMaxY - height));
 	}
-	
-	public void moveTo(float targetX, float targetY) {
-	    
-	}
-	
+		
 	public void moveUp() {
 		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			movingToTarget = false;
 			setState(EntityState.WALKING);
 			direction = EntityDirection.UP;
 		}
@@ -135,6 +189,7 @@ public abstract class Entity {
 
 	public void moveLeft() {
 		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			movingToTarget = false;
 			setState(EntityState.WALKING);
 			direction = EntityDirection.LEFT;
 		}
@@ -142,6 +197,7 @@ public abstract class Entity {
 
 	public void moveDown() {
 		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			movingToTarget = false;
 			setState(EntityState.WALKING);
 			direction = EntityDirection.DOWN;
 		}
@@ -149,6 +205,7 @@ public abstract class Entity {
 
 	public void moveRight() {
 		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			movingToTarget = false;
 		    setState(EntityState.WALKING);
 		    direction = EntityDirection.RIGHT;
 		}

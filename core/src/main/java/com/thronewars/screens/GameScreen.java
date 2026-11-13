@@ -17,10 +17,14 @@ import com.thronewars.entities.Entity;
 import com.thronewars.entities.EntityUnit;
 import com.thronewars.entities.EntityFactory;
 import com.thronewars.entities.PlayerUnitRoster;
+import com.thronewars.entities.UnitCommand;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
 import com.thronewars.ui.GameHUD;
+import com.thronewars.utils.RandomUtils;
 import com.thronewars.world.GameWorld;
+import com.thronewars.world.Waypoint;
+import com.thronewars.world.WaypointFormation;
 
 /**
  * Screen to display the main game view.
@@ -29,6 +33,8 @@ public class GameScreen extends ScreenAdapter {
 
 	private static final float WORLD_WIDTH = 5760f;
 	private static final float WORLD_HEIGHT = ScreenManager.VIEW_HEIGHT;
+	private static final float WORLD_MIN_Y = 260f;
+	private static final float WORLD_MAX_Y = 616f;
 	private static final float CAMERA_SPEED = 960f;
 	
 	private final GdxGame game;
@@ -43,14 +49,20 @@ public class GameScreen extends ScreenAdapter {
 	private final EntityFactory entityFactory;
 	private final PlayerUnitRoster playerUnitRoster;
 	private final Array<Entity> entities = new Array<>();
+	private final Array<EntityUnit> playerUnits = new Array<>();
+	private final Array<EntityUnit> opponentUnits = new Array<>();
 	private Entity player;
 	
+	private UnitCommand currentUnitCommand = UnitCommand.DEFEND;
+	
+	private WaypointFormation playerDefenceFormation;
+	private WaypointFormation opponentDefenceFormation;
+	
+	private static final int MAX_UNIT_COUNT = 25;
 	private int playerHealth = 1000;
-	private int playerGold = 500;
-	private int playerUnitCount = 0;
+	private int playerGold = 5000;
 	private int opponentHealth = 1000;
 	private int opponentGold = 500;
-	private int opponentUnitCount = 0;
 	
 	public GameScreen(GdxGame game) {
 		this.game = game;
@@ -63,6 +75,8 @@ public class GameScreen extends ScreenAdapter {
 		
 		world = new GameWorld(game);
 
+		generateWaypoints();
+		
 		entityFactory = new EntityFactory(game);
 		
 		playerUnitRoster = new PlayerUnitRoster(entityFactory);
@@ -75,35 +89,55 @@ public class GameScreen extends ScreenAdapter {
 	}
 	
 	/**
+	 * Generates the waypoint formations for both the player and opponent.
+	 */
+	private void generateWaypoints() {
+		int rows = 5;
+		int columns = 5;
+		float startingX = 530f;
+		float horzSpacing = 90f;
+		float vertSpacing = 55f;
+
+		playerDefenceFormation = new WaypointFormation(rows, columns, startingX, WORLD_MIN_Y,
+				horzSpacing, vertSpacing);
+
+		opponentDefenceFormation = new WaypointFormation(rows, columns, WORLD_WIDTH - startingX, WORLD_MIN_Y,
+				-horzSpacing, vertSpacing);
+    }
+	
+	/**
 	 * Adds entities 
 	 */
 	private void createEntities() {
 		player = entityFactory.createJonSnow(100f, 300f);
 		entities.add(player);
-		playerUnitCount++;
+		playerUnits.add((EntityUnit) player);
 		
 		// World entity objects
 	    entities.addAll(world.getOres());
 	}
 
-	
-	public void addCharacterUnit(EntityUnit unit) {
+	/**
+	 * Adds a new character unit to the game world if the player has enough gold.
+	 * @param unit The character unit to be added.
+	 */
+	public void recruitUnit(EntityUnit unit) {
+		
+		if (playerUnits.size >= MAX_UNIT_COUNT) {
+			return;
+		}
+		
 		int cost = unit.getCost();
-
-		// Check whether the player can afford the unit
 	    if (playerGold < cost) {
 	        return;
 	    }
 	    
-	    // Temp spawn values
-	    float spawnX = player.getX();
-	    float spawnY = player.getY();
-	    
-	    EntityUnit newUnit = entityFactory.createUnit(unit, spawnX, spawnY);
+	    // Spawn the unit off screen
+	    EntityUnit newUnit = entityFactory.createUnit(unit, -100f, RandomUtils.randomFloat(WORLD_MIN_Y, WORLD_MAX_Y));
 	    entities.add(newUnit);
-
+		playerUnits.add(newUnit);
+		
 	    playerGold -= cost;
-	    playerUnitCount++;
 	}
 	
 	@Override
@@ -175,14 +209,41 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	private void update(float delta) {
-		// Entities
-		for (Entity entity : entities) {
-		    entity.update(delta, WORLD_WIDTH, WORLD_HEIGHT);
-		}
-		
+		updatePlayerUnits();
+
+	    for (Entity entity : entities) {
+	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y);
+	    }
+
 	    gameHUD.updateValues();
 	}
 
+	/**
+	 * Updates the player units to move to their target.
+	 */
+	private void updatePlayerUnits() {
+		if (currentUnitCommand != UnitCommand.DEFEND) {
+			return;
+		}
+
+		for (EntityUnit unit : playerUnits) {
+			if (unit == player || unit.getAssignedWaypoint() != null) {
+				continue;
+			}
+
+			Waypoint waypoint = playerDefenceFormation.getAvailableWaypoint();
+
+			if (waypoint == null) {
+				break;
+			}
+
+			waypoint.assign(unit);
+			unit.setAssignedWaypoint(waypoint);
+
+			unit.moveTo(waypoint.getX(), waypoint.getY());
+		}
+	}
+	
 	private void draw(float delta) {
 	    ScreenUtils.clear(Color.BLACK);
 
@@ -229,6 +290,14 @@ public class GameScreen extends ScreenAdapter {
 	    gameHUD.dispose();
 	}
 	
+	public Array<EntityUnit> getPlayerUnits() {
+	    return playerUnits;
+	}
+	
+	public Array<EntityUnit> getOpponentUnits() {
+	    return opponentUnits;
+	}
+	
 	public int getPlayerHealth() {
 	    return playerHealth;
 	}
@@ -237,19 +306,11 @@ public class GameScreen extends ScreenAdapter {
 	    return playerGold;
 	}
 
-	public int getPlayerUnitCount() {
-	    return playerUnitCount;
-	}
-
 	public int getOpponentHealth() {
 	    return opponentHealth;
 	}
 	
 	public int getOpponentGold() {
 	    return opponentGold;
-	}
-
-	public int getOpponentUnitCount() {
-	    return opponentUnitCount;
 	}
 }
