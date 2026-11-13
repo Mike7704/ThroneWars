@@ -39,7 +39,7 @@ public class GameAssets {
 	
 	private final AssetManager assetManager;
 
-	private final Map<CharacterDefinition, CharacterAssets> characterAssets = new HashMap<>();
+	private final Map<UnitDefinition, UnitAssets> unitAssets = new HashMap<>();
 	
 	private boolean loaded;
 
@@ -113,9 +113,9 @@ public class GameAssets {
 	    // Effects
 	    assetManager.load(SHADOW_TEXTURE, Texture.class);
 	    
-	    // Characters
-	    for (CharacterDefinition character : CharacterDefinitions.ALL) {
-	        loadCharacterTextures(character);
+	    // Unit characters
+	    for (UnitDefinition unit : UnitDefinitions.ALL) {
+	        loadUnitTextures(unit);
 	    }
 	}
 
@@ -123,9 +123,9 @@ public class GameAssets {
 	 * Configures texture filtering and wrapping after loading.
 	 */
 	private void configureTextures() {
-	    // Characters
-	    for (CharacterDefinition character : CharacterDefinitions.ALL) {
-	        configureCharacterTextures(character);
+	    // Unit characters
+	    for (UnitDefinition unit : UnitDefinitions.ALL) {
+	        configureUnitTextures(unit);
 	    }
 	}
 
@@ -140,86 +140,86 @@ public class GameAssets {
 	}
 	
 	/**
-	 * Queues all animation textures for a character.
+	 * Queues all animation textures for a unit character.
 	 *
-	 * @param character The character whose animation textures should be loaded.
+	 * @param unit The unit character whose animation textures should be loaded.
 	 */
-	private void loadCharacterTextures(CharacterDefinition character) {
-	    for (CharacterAnimation animation : character.getAnimations()) {
-	        String path = getCharacterTexturePath(character, animation);
+	private void loadUnitTextures(UnitDefinition unit) {
+	    for (UnitAnimation animation : unit.getAnimations()) {
+	        String path = getUnitTexturePath(unit, animation);
 	        assetManager.load(path, Texture.class);
 	    }
 	}
 
 	/**
-	 * Configures the filtering for all of a character's animation textures.
+	 * Configures the filtering for all of a unit character's animation textures.
 	 *
-	 * @param character The character whose animation textures should be configured.
+	 * @param unit The unit character whose animation textures should be configured.
 	 */
-	private void configureCharacterTextures(CharacterDefinition character) {
-		for (CharacterAnimation animation : character.getAnimations()) {
-			setTextureFilter(getCharacterTexture(character, animation), TextureFilter.Nearest);
+	private void configureUnitTextures(UnitDefinition unit) {
+		for (UnitAnimation animation : unit.getAnimations()) {
+			setTextureFilter(getUnitTexture(unit, animation), TextureFilter.Nearest);
 		}
 	}
 
 	/**
-	 * Builds the asset path for a character's animation texture.
+	 * Builds the asset path for a unit character's animation texture.
 	 *
-	 * @param character The character to get the texture path for.
+	 * @param unit The unit character to get the texture path for.
 	 * @param animation The animation represented by the texture.
 	 * @return The full asset path.
 	 */
-	private String getCharacterTexturePath(CharacterDefinition character, CharacterAnimation animation) {
-		return UNIT_TEXTURE_DIRECTORY + character.getId() + "/" + animation.getFileName() + TEXTURE_EXTENSION;
+	private String getUnitTexturePath(UnitDefinition unit, UnitAnimation animation) {
+		return UNIT_TEXTURE_DIRECTORY + unit.getId() + "/" + animation.getFileName() + TEXTURE_EXTENSION;
 	}
 
 	/**
-	 * Returns a previously loaded character animation texture.
+	 * Returns a previously loaded unit character animation texture.
 	 *
-	 * @param character The character to get the textures for.
+	 * @param unit The unit character to get the textures for.
 	 * @param animation The animation to retrieve.
 	 * @return The requested texture.
 	 */
-	public Texture getCharacterTexture(CharacterDefinition character, CharacterAnimation animation) {
+	public Texture getUnitTexture(UnitDefinition unit, UnitAnimation animation) {
 		
-		if (character == null) {
-			throw new IllegalArgumentException("Character cannot be null.");
+		if (unit == null) {
+			throw new IllegalArgumentException("Unit cannot be null.");
 		}
 		
 		if (animation == null) {
 			throw new IllegalArgumentException("Animation cannot be null.");
 		}
 		
-		if (!character.hasAnimation(animation)) {
-			throw new IllegalArgumentException(character.getId() + " does not support " + animation);
+		if (!unit.hasAnimation(animation)) {
+			throw new IllegalArgumentException(unit.getId() + " does not support " + animation);
 	    }
 		
-		return assetManager.get(getCharacterTexturePath(character, animation), Texture.class);
+		return assetManager.get(getUnitTexturePath(unit, animation), Texture.class);
 	}
 	
 	/**
-	 * Returns the CharacterAssets for a given character.
+	 * Returns the CharacterAssets for a given unit character.
 	 *
-	 * @param character The character to retrieve assets for.
-	 * @return The CharacterAssets associated with the character.
+	 * @param unit The unit character to retrieve assets for.
+	 * @return The UnitAssets associated with the unit character.
 	 */
-	public CharacterAssets getCharacterAssets(CharacterDefinition character) {
-		if (character == null) {
-			throw new IllegalArgumentException("Character definition cannot be null.");
+	public UnitAssets getUnitAssets(UnitDefinition unit) {
+		if (unit == null) {
+			throw new IllegalArgumentException("Unit definition cannot be null.");
 		}
 
-		CharacterAssets assets = characterAssets.get(character);
+		UnitAssets assets = unitAssets.get(unit);
 
 		// If the assets have not been created yet, create and cache them
 		if (assets == null) {
-			Map<CharacterAnimation, Texture> textures = new EnumMap<>(CharacterAnimation.class);
+			Map<UnitAnimation, Texture> textures = new EnumMap<>(UnitAnimation.class);
 
-			for (CharacterAnimation animation : character.getAnimations()) {
-				textures.put(animation, getCharacterTexture(character, animation));
+			for (UnitAnimation animation : unit.getAnimations()) {
+				textures.put(animation, getUnitTexture(unit, animation));
 			}
 
-			assets = new CharacterAssets(character, textures);
-			characterAssets.put(character, assets);
+			assets = new UnitAssets(unit, textures);
+			unitAssets.put(unit, assets);
 		}
 
 		return assets;

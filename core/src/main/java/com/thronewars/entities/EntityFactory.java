@@ -1,10 +1,10 @@
 package com.thronewars.entities;
 
 import com.thronewars.GdxGame;
-import com.thronewars.assets.CharacterAssets;
-import com.thronewars.assets.CharacterDefinitions;
-import com.thronewars.entities.characters.Greybeard;
-import com.thronewars.entities.characters.JonSnow;
+import com.thronewars.assets.UnitAssets;
+import com.thronewars.assets.UnitDefinitions;
+import com.thronewars.entities.units.Greybeard;
+import com.thronewars.entities.units.JonSnow;
 
 /**
  * Creates game entities and assigns assets.
@@ -18,30 +18,30 @@ public class EntityFactory {
 	}
 
 	/**
-	 * Creates a character entity based on the provided character definition and position.
+	 * Creates a unit entity based on the provided unit character definition and position.
 	 *
-	 * @param character The character definition to create.
-	 * @param x The x-coordinate for the character's initial position.
-	 * @param y The y-coordinate for the character's initial position.
-	 * @return A new instance of the specified character entity.
+	 * @param unit The unit character definition to create.
+	 * @param x The x-coordinate for the unit's initial position.
+	 * @param y The y-coordinate for the unit's initial position.
+	 * @return A new instance of the specified unit character entity.
 	 */
-	public EntityCharacter createCharacter(EntityCharacter character, float x, float y) {
-		switch (character.getCharacterType()) {
+	public EntityUnit createUnit(EntityUnit unit, float x, float y) {
+		switch (unit.getUnitType()) {
 			case JON_SNOW: return createJonSnow(x, y);
 			case GREYBEARD: return createGreybeard(x, y);
 	
-			default: throw new IllegalArgumentException("Unsupported character type: " + character.getCharacterType());
+			default: throw new IllegalArgumentException("Unsupported unit type: " + unit.getUnitType());
 		}
 	}
 
 	public JonSnow createJonSnow(float x, float y) {
-		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.JON_SNOW);
+		UnitAssets assets = game.getGameAssets().getUnitAssets(UnitDefinitions.JON_SNOW);
 
 		return new JonSnow(assets, x, y, game.getAudioManager());
 	}
 
 	public Greybeard createGreybeard(float x, float y) {
-		CharacterAssets assets = game.getGameAssets().getCharacterAssets(CharacterDefinitions.GREYBEARD);
+		UnitAssets assets = game.getGameAssets().getUnitAssets(UnitDefinitions.GREYBEARD);
 
 		return new Greybeard(assets, x, y, game.getAudioManager());
 	}

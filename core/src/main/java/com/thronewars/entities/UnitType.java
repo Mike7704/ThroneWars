@@ -1,6 +1,6 @@
 package com.thronewars.entities;
 
-public enum CharacterType {
+public enum UnitType {
     JON_SNOW,
     GREYBEARD
 }

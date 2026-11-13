@@ -4,13 +4,13 @@ package com.thronewars.ui;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.thronewars.entities.EntityCharacter;
-import com.thronewars.entities.PlayerCharacterRoster;
+import com.thronewars.entities.EntityUnit;
+import com.thronewars.entities.PlayerUnitRoster;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.UIManager;
 import com.thronewars.screens.GameScreen;
 import com.thronewars.ui.components.TWButton;
-import com.thronewars.ui.components.TWCharacterIcon;
+import com.thronewars.ui.components.TWUnitIcon;
 import com.thronewars.ui.components.TWLabel;
 
 /**
@@ -27,7 +27,7 @@ public class GameHUD {
 	private final TWLabel enemyBaseHealthLabel;
 	private final TWLabel unitCountLabel;
 
-	public GameHUD(UIManager uiManager, GameScreen gameScreen, PlayerCharacterRoster playerCharacterRoster) {
+	public GameHUD(UIManager uiManager, GameScreen gameScreen, PlayerUnitRoster playerUnitRoster) {
 		stage = new Stage(new FitViewport(ScreenManager.VIEW_WIDTH, ScreenManager.VIEW_HEIGHT));
 		this.gameScreen = gameScreen;
 		
@@ -41,17 +41,17 @@ public class GameHUD {
 		hud.bottom();
 		hud.pad(15f);
 
-		// Player roster characters
-		Table charactersTable = new Table();
+		// Player roster unit characters
+		Table unitsTable = new Table();
 
-		for (EntityCharacter character : playerCharacterRoster.getCharacters()) {
-			TWCharacterIcon portrait = new TWCharacterIcon(character);
+		for (EntityUnit unit : playerUnitRoster.getUnits()) {
+			TWUnitIcon portrait = new TWUnitIcon(unit);
 
-			TWLabel nameLabel = new TWLabel(character.getName(), uiManager.getLabelSmallStyle());
+			TWLabel nameLabel = new TWLabel(unit.getName(), uiManager.getLabelSmallStyle());
 
-			TWLabel costLabel = new TWLabel(character.getCost() + " Gold", uiManager.getLabelSmallStyle());
+			TWLabel costLabel = new TWLabel(unit.getCost() + " Gold", uiManager.getLabelSmallStyle());
 
-			TWButton characterButton = new TWButton("", uiManager.getButtonStyle());
+			TWButton unitButton = new TWButton("", uiManager.getButtonStyle());
 
 			Table buttonContent = new Table();
 			buttonContent.add(portrait).size(64f).padRight(8f);
@@ -62,11 +62,11 @@ public class GameHUD {
 
 			buttonContent.add(textTable).expandY().center();
 
-			characterButton.add(buttonContent).expand().fill().pad(5f);
+			unitButton.add(buttonContent).expand().fill().pad(5f);
 
-			charactersTable.add(characterButton).width(200f).height(90f).padRight(10f);
+			unitsTable.add(unitButton).width(200f).height(90f).padRight(10f);
 			
-			characterButton.setOnClick(() -> gameScreen.addCharacterUnit(character));
+			unitButton.setOnClick(() -> gameScreen.addCharacterUnit(unit));
 		}
 
 		// Game information
@@ -83,7 +83,7 @@ public class GameHUD {
 		informationTable.add(unitCountLabel).left();
 
 		// Arrange both sections at the bottom
-		hud.add(charactersTable).left().expandX();
+		hud.add(unitsTable).left().expandX();
 		hud.add(informationTable).right();
 
 		root.add(hud).expand().fill();

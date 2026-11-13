@@ -14,9 +14,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
 import com.thronewars.entities.Entity;
-import com.thronewars.entities.EntityCharacter;
+import com.thronewars.entities.EntityUnit;
 import com.thronewars.entities.EntityFactory;
-import com.thronewars.entities.PlayerCharacterRoster;
+import com.thronewars.entities.PlayerUnitRoster;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
 import com.thronewars.ui.GameHUD;
@@ -41,7 +41,7 @@ public class GameScreen extends ScreenAdapter {
 	private final Texture shadowTexture;
 	
 	private final EntityFactory entityFactory;
-	private final PlayerCharacterRoster playerCharacterRoster;
+	private final PlayerUnitRoster playerUnitRoster;
 	private final Array<Entity> entities = new Array<>();
 	private Entity player;
 	
@@ -65,9 +65,9 @@ public class GameScreen extends ScreenAdapter {
 
 		entityFactory = new EntityFactory(game);
 		
-		playerCharacterRoster = new PlayerCharacterRoster(entityFactory);
+		playerUnitRoster = new PlayerUnitRoster(entityFactory);
 		
-		gameHUD = new GameHUD(game.getUIManager(), this, playerCharacterRoster);
+		gameHUD = new GameHUD(game.getUIManager(), this, playerUnitRoster);
 
 		shadowTexture = game.getGameAssets().getShadowTexture();
 		
@@ -87,8 +87,8 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	
-	public void addCharacterUnit(EntityCharacter character) {
-		int cost = character.getCost();
+	public void addCharacterUnit(EntityUnit unit) {
+		int cost = unit.getCost();
 
 		// Check whether the player can afford the unit
 	    if (playerGold < cost) {
@@ -99,8 +99,8 @@ public class GameScreen extends ScreenAdapter {
 	    float spawnX = player.getX();
 	    float spawnY = player.getY();
 	    
-	    EntityCharacter newCharacter = entityFactory.createCharacter(character, spawnX, spawnY);
-	    entities.add(newCharacter);
+	    EntityUnit newUnit = entityFactory.createUnit(unit, spawnX, spawnY);
+	    entities.add(newUnit);
 
 	    playerGold -= cost;
 	    playerUnitCount++;
@@ -115,7 +115,7 @@ public class GameScreen extends ScreenAdapter {
 
 	private void input(float delta) {
 		// Player controls
-		controlCharacter();
+		controlCharacterUnit();
 		
 		// Camera controls
 		moveCamera(delta);
@@ -127,9 +127,9 @@ public class GameScreen extends ScreenAdapter {
 	}
 	
 	/**
-	 * Control the selected character
+	 * Control the selected character unit
 	 */
-	private void controlCharacter() {
+	private void controlCharacterUnit() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			player.attack();
 		}

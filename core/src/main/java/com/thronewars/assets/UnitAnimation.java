@@ -1,9 +1,9 @@
 package com.thronewars.assets;
 
 /**
- * Identifies the animation sprite sheets available for each character.
+ * Identifies the animation sprite sheets available for each character unit.
  */
-public enum CharacterAnimation {
+public enum UnitAnimation {
     IDLE,
     WALK,
     HURT,

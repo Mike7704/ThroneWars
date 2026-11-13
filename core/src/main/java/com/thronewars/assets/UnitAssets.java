@@ -11,9 +11,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.thronewars.entities.EntityDirection;
 
 /**
- * Splits the character's sprite sheets into individual frames and organises them by direction.
+ * Splits the unit character's sprite sheets into individual frames and organises them by direction.
  */
-public class CharacterAssets {
+public class UnitAssets {
 
     private static final int FRAME_SIZE_64 = 64;
     private static final int FRAME_SIZE_192 = 192;
@@ -29,25 +29,25 @@ public class CharacterAssets {
     private static final int THRUST_FRAME_COUNT = 8;
     private static final float THRUST_FRAME_DURATION = 0.1f; // Seconds
 
-    private final Map<CharacterAnimation, Animation<TextureRegion>[]> animations =  new EnumMap<>(CharacterAnimation.class);
+    private final Map<UnitAnimation, Animation<TextureRegion>[]> animations =  new EnumMap<>(UnitAnimation.class);
 
     /**
-     * Creates the character's animations from the supplied sprite sheets.
+     * Creates the unit character's animations from the supplied sprite sheets.
      *
      * @param idleTexture the texture containing one idle frame per direction
      * @param walkTexture the texture containing the walking animation frames
      */
-	public CharacterAssets(CharacterDefinition character, Map<CharacterAnimation, Texture> textures) {
+	public UnitAssets(UnitDefinition unit, Map<UnitAnimation, Texture> textures) {
 
-		if (character == null) {
-			throw new IllegalArgumentException("Character definition cannot be null.");
+		if (unit == null) {
+			throw new IllegalArgumentException("Unit definition cannot be null.");
 		}
 
 		if (textures == null) {
-			throw new IllegalArgumentException("Character textures cannot be null.");
+			throw new IllegalArgumentException("Unit textures cannot be null.");
 		}
 
-		for (CharacterAnimation animation : character.getAnimations()) {
+		for (UnitAnimation animation : unit.getAnimations()) {
 			Texture texture = textures.get(animation);
 
 			if (texture == null) {
@@ -142,7 +142,7 @@ public class CharacterAssets {
      * @param stateTime the elapsed time in seconds since the animation began
      * @return the frame to render at the specified time
      */
-	public TextureRegion getFrame(CharacterAnimation animation, EntityDirection direction, float stateTime) {
+	public TextureRegion getFrame(UnitAnimation animation, EntityDirection direction, float stateTime) {
 
 		if (animation == null) {
 			throw new IllegalArgumentException("Animation cannot be null.");

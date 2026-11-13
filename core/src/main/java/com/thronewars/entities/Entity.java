@@ -2,7 +2,7 @@ package com.thronewars.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.thronewars.assets.CharacterAssets;
+import com.thronewars.assets.UnitAssets;
 import com.thronewars.managers.AudioManager;
 import com.thronewars.utils.RandomUtils;
 
@@ -40,13 +40,13 @@ public abstract class Entity {
     public void update(float delta, float worldWidth, float worldHeight) {
     	if (state == EntityState.SLASHING) {
             stateTime += delta;
-            if (stateTime >= CharacterAssets.getSlashDuration()) {
+            if (stateTime >= UnitAssets.getSlashDuration()) {
             	finishAttack();
             }
         }
     	else if (state == EntityState.THRUSTING) {
             stateTime += delta;
-            if (stateTime >= CharacterAssets.getThrustDuration()) {
+            if (stateTime >= UnitAssets.getThrustDuration()) {
             	finishAttack();
             }
         }
@@ -120,6 +120,10 @@ public abstract class Entity {
 	    
 	    x = Math.max(0f, Math.min(x, worldWidth - width));
 	    y = Math.max(minY, Math.min(y, maxY - height));
+	}
+	
+	public void moveTo(float targetX, float targetY) {
+	    
 	}
 	
 	public void moveUp() {
