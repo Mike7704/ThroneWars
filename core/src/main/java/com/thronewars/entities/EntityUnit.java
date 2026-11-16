@@ -18,6 +18,7 @@ public abstract class EntityUnit extends Entity {
 	
 	protected final UnitAssets unitAssets;
 	
+	private UnitCommand assignedCommand; 
 	private Waypoint assignedWaypoint;
 
 	protected EntityUnit(EntityType type, UnitType unitType, String name, float x, float y, AudioManager audioManager, UnitAssets unitAssets) {
@@ -53,6 +54,14 @@ public abstract class EntityUnit extends Entity {
 		float offsetY = (ATTACK_FRAME_SIZE - height) / 2f;
 
 		batch.draw(frame, x - offsetX, y - offsetY, ATTACK_FRAME_SIZE, ATTACK_FRAME_SIZE);
+	}
+	
+	public UnitCommand getAssignedCommand() {
+	    return assignedCommand;
+	}
+
+	public void setAssignedCommand(UnitCommand command) {
+	    this.assignedCommand = command;
 	}
 	
 	public void setAssignedWaypoint(Waypoint waypoint) {

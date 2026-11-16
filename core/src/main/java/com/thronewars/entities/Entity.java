@@ -27,6 +27,7 @@ public abstract class Entity {
 	
     private float targetX;
     private float targetY;
+    private EntityDirection targetDirection;
     private boolean movingToTarget = false;
     
     protected EntityState state = EntityState.IDLE;
@@ -102,15 +103,19 @@ public abstract class Entity {
 		health = Math.max(0, health - damage);
 	}
 	
-	public void moveTo(float targetX, float targetY) {
+	public void moveTo(float targetX, float targetY, EntityDirection targetDirection) {
 	    this.targetX = targetX;
 	    this.targetY = targetY;
-
+	    this.targetDirection = targetDirection;
+	    
+	    // Calculate the distance to the target position
 	    float dx = targetX - x;
 	    float dy = targetY - y;
 
+	    // If the distance is less than 1 unit, stop moving and set the entity to idle
 	    if (dx * dx + dy * dy < 1f) {
 	        movingToTarget = false;
+	        setDirection(targetDirection);
 	        setIdle();
 	        return;
 	    }
@@ -123,16 +128,19 @@ public abstract class Entity {
 		float dx = targetX - x;
 		float dy = targetY - y;
 
+		// Calculate the distance to the target position
 		float distance = (float) Math.sqrt(dx * dx + dy * dy);
 		float movement = speed * delta;
 
+		// If the distance to the target is less than or equal to the movement distance, snap to the target position
 		if (distance <= movement || distance == 0f) {
 		    x = targetX;
 		    y = targetY;
 
-		    keepInsideWorld(worldWidth, worldMinY, worldMaxY);
+		    keepInsideWorldHeight(worldMinY, worldMaxY);
 
 		    movingToTarget = false;
+		    setDirection(targetDirection);
 		    setIdle();
 		    return;
 		}
@@ -150,7 +158,7 @@ public abstract class Entity {
 			direction = dy > 0 ? EntityDirection.UP : EntityDirection.DOWN;
 		}
 
-		keepInsideWorld(worldWidth, worldMinY, worldMaxY);
+		keepInsideWorldHeight(worldMinY, worldMaxY);
 	}
 
 	private void move(float delta, float worldWidth, float worldMinY, float worldMaxY) {
@@ -174,8 +182,12 @@ public abstract class Entity {
 	    keepInsideWorld(worldWidth, worldMinY, worldMaxY);
 	}
 	
-	protected void keepInsideWorld(float worldWidth, float worldMinY, float worldMaxY) {
+	protected void keepInsideWorld(float worldWidth, float worldMinY, float worldMaxY) {		
 	    x = Math.max(0f, Math.min(x, worldWidth - width));
+	    y = Math.max(worldMinY, Math.min(y, worldMaxY - height));
+	}
+	
+	protected void keepInsideWorldHeight(float worldMinY, float worldMaxY) {		
 	    y = Math.max(worldMinY, Math.min(y, worldMaxY - height));
 	}
 		

@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
 import com.thronewars.entities.Entity;
+import com.thronewars.entities.EntityDirection;
 import com.thronewars.entities.EntityUnit;
 import com.thronewars.entities.EntityFactory;
 import com.thronewars.entities.PlayerUnitRoster;
@@ -55,7 +56,9 @@ public class GameScreen extends ScreenAdapter {
 	
 	private UnitCommand currentUnitCommand = UnitCommand.DEFEND;
 	
+	private WaypointFormation playerRetreatFormation;
 	private WaypointFormation playerDefenceFormation;
+	private WaypointFormation opponentRetreatFormation;
 	private WaypointFormation opponentDefenceFormation;
 	
 	private static final int MAX_UNIT_COUNT = 25;
@@ -94,14 +97,21 @@ public class GameScreen extends ScreenAdapter {
 	private void generateWaypoints() {
 		int rows = 5;
 		int columns = 5;
-		float startingX = 530f;
+		float startingRetreatX = -600f;
+		float startingDefenceX = 530f;
 		float horzSpacing = 90f;
 		float vertSpacing = 55f;
 
-		playerDefenceFormation = new WaypointFormation(rows, columns, startingX, WORLD_MIN_Y,
+		playerRetreatFormation = new WaypointFormation(rows, columns, startingRetreatX, WORLD_MIN_Y,
+				horzSpacing, vertSpacing);
+		
+		playerDefenceFormation = new WaypointFormation(rows, columns, startingDefenceX, WORLD_MIN_Y,
 				horzSpacing, vertSpacing);
 
-		opponentDefenceFormation = new WaypointFormation(rows, columns, WORLD_WIDTH - startingX, WORLD_MIN_Y,
+		opponentRetreatFormation = new WaypointFormation(rows, columns, WORLD_WIDTH + Math.abs(startingRetreatX), WORLD_MIN_Y,
+				horzSpacing, vertSpacing);
+		
+		opponentDefenceFormation = new WaypointFormation(rows, columns, WORLD_WIDTH - startingDefenceX, WORLD_MIN_Y,
 				-horzSpacing, vertSpacing);
     }
 	
@@ -222,26 +232,66 @@ public class GameScreen extends ScreenAdapter {
 	 * Updates the player units to move to their target.
 	 */
 	private void updatePlayerUnits() {
-		if (currentUnitCommand != UnitCommand.DEFEND) {
-			return;
-		}
-
 		for (EntityUnit unit : playerUnits) {
-			if (unit == player || unit.getAssignedWaypoint() != null) {
+			// Unit is controlled by the player.
+			if (unit == player) {
 				continue;
 			}
 
-			Waypoint waypoint = playerDefenceFormation.getAvailableWaypoint();
-
-			if (waypoint == null) {
-				break;
+			// Only issue new orders when the command changes.
+			if (unit.getAssignedCommand() == currentUnitCommand) {
+				continue;
 			}
 
-			waypoint.assign(unit);
-			unit.setAssignedWaypoint(waypoint);
+			releaseAssignedWaypoint(unit);
 
-			unit.moveTo(waypoint.getX(), waypoint.getY());
+			switch (currentUnitCommand) {
+				case RETREAT:
+					assignWaypoint(unit, playerRetreatFormation);
+					break;
+					
+	            case DEFEND:
+	                assignWaypoint(unit, playerDefenceFormation);
+	                break;	
+	
+	            case ATTACK:
+	                unit.moveTo(WORLD_WIDTH - 300f, unit.getY(), EntityDirection.RIGHT);
+	                unit.setAssignedCommand(UnitCommand.ATTACK);
+	                break;
+	        }
 		}
+	}
+	
+	/**
+	 * Assigns a waypoint to the given unit based on the specified formation.
+	 * @param unit The unit to assign a waypoint to.
+	 * @param formation The waypoint formation to use for assignment.
+	 */
+	private void assignWaypoint(EntityUnit unit, WaypointFormation formation) {
+	    Waypoint waypoint = formation.getAvailableWaypoint();
+
+	    if (waypoint == null) {
+	        return;
+	    }
+
+	    waypoint.assign(unit);
+	    unit.setAssignedWaypoint(waypoint);
+	    unit.moveTo(waypoint.getX(), waypoint.getY(), EntityDirection.RIGHT);
+
+	    unit.setAssignedCommand(currentUnitCommand);
+	}
+	
+	/**
+	 * Releases the assigned waypoint for the given unit.
+	 * @param unit The unit whose assigned waypoint should be released.
+	 */
+	private void releaseAssignedWaypoint(EntityUnit unit) {
+	    Waypoint waypoint = unit.getAssignedWaypoint();
+
+	    if (waypoint != null) {
+	        waypoint.release();
+	        unit.setAssignedWaypoint(null);
+	    }
 	}
 	
 	private void draw(float delta) {
@@ -296,6 +346,10 @@ public class GameScreen extends ScreenAdapter {
 	
 	public Array<EntityUnit> getOpponentUnits() {
 	    return opponentUnits;
+	}
+	
+	public void setUnitCommand(UnitCommand command) {
+	    currentUnitCommand = command;
 	}
 	
 	public int getPlayerHealth() {
