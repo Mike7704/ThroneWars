@@ -30,10 +30,22 @@ public final class UnitDefinitions {
 	        UnitAnimation.THRUST
 	        //UnitAnimation.BACKSLASH
 		);
+	
+	public static final UnitDefinition LANNISTER_KNIGHT =
+	    new UnitDefinition(
+	        "greybeard", // "lannister-knight",
+	        UnitAnimation.IDLE,
+	        UnitAnimation.WALK,
+	        //UnitAnimation.HURT,
+	        UnitAnimation.SLASH,
+	        UnitAnimation.THRUST
+	        //UnitAnimation.BACKSLASH
+	    );
 
 	public static final List<UnitDefinition> ALL =
 		Collections.unmodifiableList(Arrays.asList(
 			JON_SNOW,
-			GREYBEARD
+			GREYBEARD,
+			LANNISTER_KNIGHT
 		));
 }

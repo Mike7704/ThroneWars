@@ -5,6 +5,7 @@ import com.thronewars.assets.UnitAssets;
 import com.thronewars.assets.UnitDefinitions;
 import com.thronewars.entities.units.Greybeard;
 import com.thronewars.entities.units.JonSnow;
+import com.thronewars.entities.units.LannisterKnight;
 
 /**
  * Creates game entities and assigns assets.
@@ -29,6 +30,7 @@ public class EntityFactory {
 		switch (unit.getUnitType()) {
 			case JON_SNOW: return createJonSnow(x, y);
 			case GREYBEARD: return createGreybeard(x, y);
+			case LANNISTER_KNIGHT: return createLannisterKnight(x, y);
 	
 			default: throw new IllegalArgumentException("Unsupported unit type: " + unit.getUnitType());
 		}
@@ -44,5 +46,11 @@ public class EntityFactory {
 		UnitAssets assets = game.getGameAssets().getUnitAssets(UnitDefinitions.GREYBEARD);
 
 		return new Greybeard(assets, x, y, game.getAudioManager());
+	}
+	
+	public LannisterKnight createLannisterKnight(float x, float y) {
+	    UnitAssets assets = game.getGameAssets().getUnitAssets(UnitDefinitions.LANNISTER_KNIGHT);
+
+	    return new LannisterKnight(assets, x, y, game.getAudioManager());
 	}
 }

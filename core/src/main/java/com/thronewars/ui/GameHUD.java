@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.entities.EntityUnit;
-import com.thronewars.entities.PlayerUnitRoster;
+import com.thronewars.entities.UnitRoster;
 import com.thronewars.entities.UnitCommand;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.UIManager;
@@ -29,7 +29,7 @@ public class GameHUD {
 	private TWLabel enemyBaseHealthLabel;
 	private TWLabel unitCountLabel;
 
-	public GameHUD(UIManager uiManager, GameScreen gameScreen, PlayerUnitRoster playerUnitRoster) {
+	public GameHUD(UIManager uiManager, GameScreen gameScreen, UnitRoster playerUnitRoster) {
 		stage = new Stage(new FitViewport(ScreenManager.VIEW_WIDTH, ScreenManager.VIEW_HEIGHT));
 		this.uiManager = uiManager;
 		this.gameScreen = gameScreen;
@@ -59,7 +59,7 @@ public class GameHUD {
 	/**
 	 * Creates a table containing the player's unit roster with buttons to recruit units.
 	 */
-	private Table recruitUnitsTable(PlayerUnitRoster playerUnitRoster) {
+	private Table recruitUnitsTable(UnitRoster playerUnitRoster) {
 		Table recruitUnitsTable = new Table();
 
 		for (EntityUnit unit : playerUnitRoster.getUnits()) {
@@ -84,7 +84,7 @@ public class GameHUD {
 
 			recruitUnitsTable.add(unitButton).width(200f).height(90f).padRight(10f);
 			
-			unitButton.setOnClick(() -> gameScreen.recruitUnit(unit));
+			unitButton.setOnClick(() -> gameScreen.recruitPlayerUnit(unit));
 		}
 		
 		return recruitUnitsTable;
@@ -100,9 +100,9 @@ public class GameHUD {
 		TWButton defendButton = new TWButton("DEFEND", uiManager.getButtonStyle());
 		TWButton attackButton = new TWButton("ATTACK", uiManager.getButtonStyle());
 
-		retreatButton.setOnClick(() -> gameScreen.setUnitCommand(UnitCommand.RETREAT));
-		defendButton.setOnClick(() -> gameScreen.setUnitCommand(UnitCommand.DEFEND));
-		attackButton.setOnClick(() -> gameScreen.setUnitCommand(UnitCommand.ATTACK));
+		retreatButton.setOnClick(() -> gameScreen.setPlayerUnitCommand(UnitCommand.RETREAT));
+		defendButton.setOnClick(() -> gameScreen.setPlayerUnitCommand(UnitCommand.DEFEND));
+		attackButton.setOnClick(() -> gameScreen.setPlayerUnitCommand(UnitCommand.ATTACK));
 
 		commandUnitsTable.add(retreatButton).width(250f).height(90f).padRight(10f);
 		commandUnitsTable.add(defendButton).width(250f).height(90f).padRight(10f);

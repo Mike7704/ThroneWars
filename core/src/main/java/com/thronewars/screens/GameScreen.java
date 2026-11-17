@@ -17,8 +17,9 @@ import com.thronewars.entities.Entity;
 import com.thronewars.entities.EntityDirection;
 import com.thronewars.entities.EntityUnit;
 import com.thronewars.entities.EntityFactory;
-import com.thronewars.entities.PlayerUnitRoster;
+import com.thronewars.entities.UnitRoster;
 import com.thronewars.entities.UnitCommand;
+import com.thronewars.entities.UnitFaction;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
 import com.thronewars.ui.GameHUD;
@@ -48,13 +49,15 @@ public class GameScreen extends ScreenAdapter {
 	private final Texture shadowTexture;
 	
 	private final EntityFactory entityFactory;
-	private final PlayerUnitRoster playerUnitRoster;
+	private final UnitRoster playerUnitRoster;
+	private final UnitRoster opponentUnitRoster;
 	private final Array<Entity> entities = new Array<>();
 	private final Array<EntityUnit> playerUnits = new Array<>();
 	private final Array<EntityUnit> opponentUnits = new Array<>();
 	private Entity player;
 	
-	private UnitCommand currentUnitCommand = UnitCommand.DEFEND;
+	private UnitCommand currentPlayerUnitCommand = UnitCommand.DEFEND;
+	private UnitCommand currentOpponentUnitCommand = UnitCommand.DEFEND;
 	
 	private WaypointFormation playerRetreatFormation;
 	private WaypointFormation playerDefenceFormation;
@@ -82,7 +85,8 @@ public class GameScreen extends ScreenAdapter {
 		
 		entityFactory = new EntityFactory(game);
 		
-		playerUnitRoster = new PlayerUnitRoster(entityFactory);
+		playerUnitRoster = new UnitRoster(entityFactory, UnitFaction.STARK);
+		opponentUnitRoster = new UnitRoster(entityFactory, UnitFaction.LANNISTER);
 		
 		gameHUD = new GameHUD(game.getUIManager(), this, playerUnitRoster);
 
@@ -123,6 +127,12 @@ public class GameScreen extends ScreenAdapter {
 		entities.add(player);
 		playerUnits.add((EntityUnit) player);
 		
+		// Opponent Units
+		EntityUnit lannisterKnight = opponentUnitRoster.getUnits().first();
+		for (int i = 0; i < 5; i++) {
+		    recruitOpponentUnit(lannisterKnight);
+		}
+		
 		// World entity objects
 	    entities.addAll(world.getOres());
 	}
@@ -131,7 +141,7 @@ public class GameScreen extends ScreenAdapter {
 	 * Adds a new character unit to the game world if the player has enough gold.
 	 * @param unit The character unit to be added.
 	 */
-	public void recruitUnit(EntityUnit unit) {
+	public void recruitPlayerUnit(EntityUnit unit) {
 		
 		if (playerUnits.size >= MAX_UNIT_COUNT) {
 			return;
@@ -150,6 +160,29 @@ public class GameScreen extends ScreenAdapter {
 	    playerGold -= cost;
 	}
 	
+	/**
+	 * Adds a new character unit to the game world if the opponent has enough gold.
+	 * @param unit The character unit to be added.
+	 */
+	public void recruitOpponentUnit(EntityUnit unit) {
+		
+		if (opponentUnits.size >= MAX_UNIT_COUNT) {
+			return;
+		}
+		
+		int cost = unit.getCost();
+	    if (opponentGold < cost) {
+	        return;
+	    }
+	    
+	    // Spawn the unit off screen
+	    EntityUnit newUnit = entityFactory.createUnit(unit, WORLD_WIDTH + 100f, RandomUtils.randomFloat(WORLD_MIN_Y, WORLD_MAX_Y));
+	    entities.add(newUnit);
+	    opponentUnits.add(newUnit);
+		
+	    opponentGold -= cost;
+	}
+
 	@Override
 	public void render(float delta) {
 		input(delta);
@@ -219,7 +252,7 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	private void update(float delta) {
-		updatePlayerUnits();
+		updateUnits();
 
 	    for (Entity entity : entities) {
 	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y);
@@ -229,9 +262,9 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	/**
-	 * Updates the player units to move to their target.
+	 * Updates the player and opponent units to move to their target.
 	 */
-	private void updatePlayerUnits() {
+	private void updateUnits() {
 		for (EntityUnit unit : playerUnits) {
 			// Unit is controlled by the player.
 			if (unit == player) {
@@ -239,23 +272,47 @@ public class GameScreen extends ScreenAdapter {
 			}
 
 			// Only issue new orders when the command changes.
-			if (unit.getAssignedCommand() == currentUnitCommand) {
+			if (unit.getAssignedCommand() == currentPlayerUnitCommand) {
 				continue;
 			}
 
 			releaseAssignedWaypoint(unit);
 
-			switch (currentUnitCommand) {
+			switch (currentPlayerUnitCommand) {
 				case RETREAT:
-					assignWaypoint(unit, playerRetreatFormation);
+					assignWaypoint(unit, playerRetreatFormation, EntityDirection.RIGHT, currentPlayerUnitCommand);
 					break;
 					
 	            case DEFEND:
-	                assignWaypoint(unit, playerDefenceFormation);
+	                assignWaypoint(unit, playerDefenceFormation, EntityDirection.RIGHT, currentPlayerUnitCommand);
 	                break;	
 	
 	            case ATTACK:
 	                unit.moveTo(WORLD_WIDTH - 300f, unit.getY(), EntityDirection.RIGHT);
+	                unit.setAssignedCommand(UnitCommand.ATTACK);
+	                break;
+	        }
+		}
+		
+		for (EntityUnit unit : opponentUnits) {
+			// Only issue new orders when the command changes.
+			if (unit.getAssignedCommand() == currentOpponentUnitCommand) {
+				continue;
+			}
+
+			releaseAssignedWaypoint(unit);
+
+			switch (currentOpponentUnitCommand) {
+				case RETREAT:
+					assignWaypoint(unit, opponentRetreatFormation, EntityDirection.LEFT, currentOpponentUnitCommand);
+					break;
+					
+	            case DEFEND:
+	                assignWaypoint(unit, opponentDefenceFormation, EntityDirection.LEFT, currentOpponentUnitCommand);
+	                break;	
+	
+	            case ATTACK:
+	                unit.moveTo(300f, unit.getY(), EntityDirection.LEFT);
 	                unit.setAssignedCommand(UnitCommand.ATTACK);
 	                break;
 	        }
@@ -267,7 +324,7 @@ public class GameScreen extends ScreenAdapter {
 	 * @param unit The unit to assign a waypoint to.
 	 * @param formation The waypoint formation to use for assignment.
 	 */
-	private void assignWaypoint(EntityUnit unit, WaypointFormation formation) {
+	private void assignWaypoint(EntityUnit unit, WaypointFormation formation, EntityDirection targetDirection, UnitCommand unitCommand) {
 	    Waypoint waypoint = formation.getAvailableWaypoint();
 
 	    if (waypoint == null) {
@@ -276,9 +333,9 @@ public class GameScreen extends ScreenAdapter {
 
 	    waypoint.assign(unit);
 	    unit.setAssignedWaypoint(waypoint);
-	    unit.moveTo(waypoint.getX(), waypoint.getY(), EntityDirection.RIGHT);
+	    unit.moveTo(waypoint.getX(), waypoint.getY(), targetDirection);
 
-	    unit.setAssignedCommand(currentUnitCommand);
+	    unit.setAssignedCommand(unitCommand);
 	}
 	
 	/**
@@ -348,8 +405,12 @@ public class GameScreen extends ScreenAdapter {
 	    return opponentUnits;
 	}
 	
-	public void setUnitCommand(UnitCommand command) {
-	    currentUnitCommand = command;
+	public void setPlayerUnitCommand(UnitCommand command) {
+		currentPlayerUnitCommand = command;
+	}
+	
+	public void setOpponentUnitCommand(UnitCommand command) {
+		currentOpponentUnitCommand = command;
 	}
 	
 	public int getPlayerHealth() {

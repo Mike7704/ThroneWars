@@ -15,16 +15,18 @@ public abstract class EntityUnit extends Entity {
 	private static final float ATTACK_FRAME_SIZE = 384f;
 
 	private final UnitType unitType;
+	private final UnitFaction faction;
 	
-	protected final UnitAssets unitAssets;
+	protected final UnitAssets assets;
 	
 	private UnitCommand assignedCommand; 
 	private Waypoint assignedWaypoint;
 
-	protected EntityUnit(EntityType type, UnitType unitType, String name, float x, float y, AudioManager audioManager, UnitAssets unitAssets) {
+	protected EntityUnit(EntityType type, UnitType unitType, UnitFaction faction, String name, float x, float y, AudioManager audioManager, UnitAssets unitAssets) {
 		super(type, name, x, y, audioManager);
 		this.unitType = unitType;
-		this.unitAssets = unitAssets;
+		this.faction = faction;
+		this.assets = unitAssets;
 	}
 
 	@Override
@@ -39,7 +41,7 @@ public abstract class EntityUnit extends Entity {
 			default: 		animation = UnitAnimation.IDLE;
 		}
 
-		TextureRegion frame = unitAssets.getFrame(animation, direction, stateTime);
+		TextureRegion frame = assets.getFrame(animation, direction, stateTime);
 
 		if (animation == UnitAnimation.SLASH || animation == UnitAnimation.THRUST) {
 			renderAttack(batch, frame);
@@ -76,7 +78,11 @@ public abstract class EntityUnit extends Entity {
 	    return unitType;
 	}
 	
+	public UnitFaction getFaction() {
+	    return faction;
+	}
+	
 	public UnitAssets getUnitAssets() {
-	    return unitAssets;
+	    return assets;
 	}
 }
