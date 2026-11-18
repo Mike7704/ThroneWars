@@ -30,6 +30,8 @@ public class Ore extends Entity {
 		speed = SPEED;
         maxHealth = MAX_HEALTH;
         health = maxHealth;
+        
+        hasCollision = false;
 	}
 
 	@Override

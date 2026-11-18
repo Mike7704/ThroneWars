@@ -255,7 +255,7 @@ public class GameScreen extends ScreenAdapter {
 		updateUnits();
 
 	    for (Entity entity : entities) {
-	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y);
+	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y, entities);
 	    }
 
 	    gameHUD.updateValues();
