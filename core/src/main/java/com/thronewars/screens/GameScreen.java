@@ -15,11 +15,11 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thronewars.GdxGame;
 import com.thronewars.entities.Entity;
 import com.thronewars.entities.EntityDirection;
-import com.thronewars.entities.EntityUnit;
 import com.thronewars.entities.EntityFactory;
-import com.thronewars.entities.UnitRoster;
+import com.thronewars.entities.EntityUnit;
 import com.thronewars.entities.UnitCommand;
 import com.thronewars.entities.UnitFaction;
+import com.thronewars.entities.UnitRoster;
 import com.thronewars.managers.ScreenManager;
 import com.thronewars.managers.ScreenType;
 import com.thronewars.ui.GameHUD;
@@ -61,8 +61,10 @@ public class GameScreen extends ScreenAdapter {
 	
 	private WaypointFormation playerRetreatFormation;
 	private WaypointFormation playerDefenceFormation;
+	private WaypointFormation playerAttackFormation;
 	private WaypointFormation opponentRetreatFormation;
 	private WaypointFormation opponentDefenceFormation;
+	private WaypointFormation opponentAttackFormation;
 	
 	private static final int MAX_UNIT_COUNT = 25;
 	private int playerHealth = 1000;
@@ -103,6 +105,7 @@ public class GameScreen extends ScreenAdapter {
 		int columns = 5;
 		float startingRetreatX = -600f;
 		float startingDefenceX = 530f;
+		float startingAttackX = 1000f;
 		float horzSpacing = 90f;
 		float vertSpacing = 55f;
 
@@ -112,10 +115,16 @@ public class GameScreen extends ScreenAdapter {
 		playerDefenceFormation = new WaypointFormation(rows, columns, startingDefenceX, WORLD_MIN_Y,
 				horzSpacing, vertSpacing);
 
-		opponentRetreatFormation = new WaypointFormation(rows, columns, WORLD_WIDTH + Math.abs(startingRetreatX), WORLD_MIN_Y,
+		playerAttackFormation = new WaypointFormation(rows, columns, WORLD_WIDTH - startingAttackX, WORLD_MIN_Y,
 				horzSpacing, vertSpacing);
 		
+		opponentRetreatFormation = new WaypointFormation(rows, columns, WORLD_WIDTH + Math.abs(startingRetreatX), WORLD_MIN_Y,
+				-horzSpacing, vertSpacing);
+		
 		opponentDefenceFormation = new WaypointFormation(rows, columns, WORLD_WIDTH - startingDefenceX, WORLD_MIN_Y,
+				-horzSpacing, vertSpacing);
+		
+		opponentAttackFormation = new WaypointFormation(rows, columns, startingAttackX, WORLD_MIN_Y,
 				-horzSpacing, vertSpacing);
     }
 	
@@ -253,9 +262,11 @@ public class GameScreen extends ScreenAdapter {
 
 	private void update(float delta) {
 		updateUnits();
+		updateUnitCombat(playerUnits, opponentUnits, currentPlayerUnitCommand);
+		updateUnitCombat(opponentUnits, playerUnits, currentOpponentUnitCommand);
 
 	    for (Entity entity : entities) {
-	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y, entities);
+	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y);
 	    }
 
 	    gameHUD.updateValues();
@@ -288,8 +299,7 @@ public class GameScreen extends ScreenAdapter {
 	                break;	
 	
 	            case ATTACK:
-	                unit.moveTo(WORLD_WIDTH - 300f, unit.getY(), EntityDirection.RIGHT);
-	                unit.setAssignedCommand(UnitCommand.ATTACK);
+	            	assignWaypoint(unit, playerAttackFormation, EntityDirection.RIGHT, currentPlayerUnitCommand);
 	                break;
 	        }
 		}
@@ -312,8 +322,7 @@ public class GameScreen extends ScreenAdapter {
 	                break;	
 	
 	            case ATTACK:
-	                unit.moveTo(300f, unit.getY(), EntityDirection.LEFT);
-	                unit.setAssignedCommand(UnitCommand.ATTACK);
+	            	assignWaypoint(unit, opponentAttackFormation, EntityDirection.LEFT, currentOpponentUnitCommand);
 	                break;
 	        }
 		}
@@ -323,19 +332,23 @@ public class GameScreen extends ScreenAdapter {
 	 * Assigns a waypoint to the given unit based on the specified formation.
 	 * @param unit The unit to assign a waypoint to.
 	 * @param formation The waypoint formation to use for assignment.
+	 * @param targetDirection The direction the unit should face when moving to the waypoint.
+	 * @param unitCommand The command associated with the unit's movement.
+	 * @return true if a waypoint was successfully assigned; false if no available waypoints were found.
 	 */
-	private void assignWaypoint(EntityUnit unit, WaypointFormation formation, EntityDirection targetDirection, UnitCommand unitCommand) {
-	    Waypoint waypoint = formation.getAvailableWaypoint();
+	private boolean assignWaypoint(EntityUnit unit, WaypointFormation formation, EntityDirection targetDirection, UnitCommand unitCommand) {
+		Waypoint waypoint = formation.getAvailableWaypoint();
 
-	    if (waypoint == null) {
-	        return;
-	    }
+		if (waypoint == null) {
+			return false;
+		}
 
-	    waypoint.assign(unit);
-	    unit.setAssignedWaypoint(waypoint);
-	    unit.moveTo(waypoint.getX(), waypoint.getY(), targetDirection);
+		waypoint.assign(unit);
+		unit.setAssignedWaypoint(waypoint);
+		unit.setAssignedCommand(unitCommand);
+		unit.moveTo(waypoint.getX(), waypoint.getY(), targetDirection);
 
-	    unit.setAssignedCommand(unitCommand);
+		return true;
 	}
 	
 	/**
@@ -349,6 +362,89 @@ public class GameScreen extends ScreenAdapter {
 	        waypoint.release();
 	        unit.setAssignedWaypoint(null);
 	    }
+	}
+	
+	/**
+	 * Updates the combat state of the given units based on their proximity to enemies.
+	 * @param units The units to update.
+	 * @param enemies The potential enemy units.
+	 * @param command The current command for the units.
+	 */
+	private void updateUnitCombat(Array<EntityUnit> units, Array<EntityUnit> enemies, UnitCommand command) {
+
+		for (EntityUnit unit : units) {
+			if (unit == player || !unit.isAlive()) {
+				continue;
+			}
+
+			// Retreating units avoid attacking.
+			if (command == UnitCommand.RETREAT) {
+				unit.setEnemyTarget(null);
+				unit.resumeMovement();
+				continue;
+			}
+			
+			// Defending units return to formation before attacking.
+			if (command == UnitCommand.DEFEND && !unit.hasReachedTarget()) {
+	            unit.setEnemyTarget(null);
+	            unit.resumeMovement();
+	            continue;
+	        }
+
+			EntityUnit enemy = findNearestEnemy(unit, enemies);
+
+			if (enemy != null && isWithinAttackRange(unit, enemy)) {
+				unit.setEnemyTarget(enemy);
+				unit.pauseMovement();
+			} else {
+				unit.setEnemyTarget(null);
+				unit.resumeMovement();
+			}
+		}
+	}
+	
+	/**
+	 * Finds the nearest enemy unit to the given unit from the list of enemies.
+	 * @param unit The unit for which to find the nearest enemy.
+	 * @param enemies The list of potential enemy units.
+	 * @return The nearest enemy unit, or null if no enemies are found.
+	 */
+	private EntityUnit findNearestEnemy(EntityUnit unit, Array<EntityUnit> enemies) {
+		EntityUnit nearestEnemy = null;
+		float nearestDistance = Float.MAX_VALUE;
+
+		for (EntityUnit enemy : enemies) {
+			if (!enemy.isAlive()) {
+				continue;
+			}
+
+			float dx = enemy.getX() - unit.getX();
+			float dy = enemy.getY() - unit.getY();
+
+			float distance = dx * dx + dy * dy;
+
+			if (distance < nearestDistance) {
+				nearestDistance = distance;
+				nearestEnemy = enemy;
+			}
+		}
+
+		return nearestEnemy;
+	}
+	
+	/**
+	 * Checks if the given unit is within attack range of the specified enemy unit.
+	 * @param unit The unit to check.
+	 * @param enemy The enemy unit to check against.
+	 * @return true if the unit is within attack range of the enemy; false otherwise.
+	 */
+	private boolean isWithinAttackRange(EntityUnit unit, EntityUnit enemy) {
+		float dx = enemy.getX() - unit.getX();
+		float dy = enemy.getY() - unit.getY();
+
+		float distanceSquared = dx * dx + dy * dy;
+
+		return distanceSquared <= unit.getAttackRange() * unit.getAttackRange();
 	}
 	
 	private void draw(float delta) {

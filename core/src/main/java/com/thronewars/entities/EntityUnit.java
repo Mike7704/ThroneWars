@@ -21,6 +21,9 @@ public abstract class EntityUnit extends Entity {
 	
 	private UnitCommand assignedCommand; 
 	private Waypoint assignedWaypoint;
+	
+	private float attackRange = 100f;
+    private EntityUnit enemyTarget;
 
 	protected EntityUnit(EntityType type, UnitType unitType, UnitFaction faction, String name, float x, float y, AudioManager audioManager, UnitAssets unitAssets) {
 		super(type, name, x, y, audioManager);
@@ -72,6 +75,18 @@ public abstract class EntityUnit extends Entity {
 
 	public Waypoint getAssignedWaypoint() {
 	    return assignedWaypoint;
+	}
+	
+	public float getAttackRange() {
+	    return attackRange;
+	}
+
+	public EntityUnit getEnemyTarget() {
+	    return enemyTarget;
+	}
+
+	public void setEnemyTarget(EntityUnit enemyTarget) {
+	    this.enemyTarget = enemyTarget;
 	}
 	
 	public UnitType getUnitType() {

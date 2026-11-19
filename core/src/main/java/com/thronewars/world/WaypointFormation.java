@@ -21,14 +21,14 @@ public class WaypointFormation {
     }
 
 	private void createWaypoints(int rows, int columns, float startX, float startY, float horizontalSpacing, float verticalSpacing) {
-		for (int column = columns; column >= 0; column--) {
-			for (int row = 0; row < rows; row++) {
-                float x = startX + (column * horizontalSpacing);
-                float y = startY + (row * verticalSpacing);
+		for (int column = columns - 1; column >= 0; column--) {
+		    for (int row = 0; row < rows; row++) {
+		        float x = startX + (column * horizontalSpacing);
+		        float y = startY + (row * verticalSpacing);
 
-                waypoints.add(new Waypoint(x, y));
-            }
-        }
+		        waypoints.add(new Waypoint(x, y));
+		    }
+		}
     }
 
     public Waypoint getAvailableWaypoint() {

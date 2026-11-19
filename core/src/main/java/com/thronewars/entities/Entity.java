@@ -2,7 +2,6 @@ package com.thronewars.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Array;
 import com.thronewars.assets.UnitAssets;
 import com.thronewars.managers.AudioManager;
 import com.thronewars.utils.RandomUtils;
@@ -30,13 +29,11 @@ public abstract class Entity {
     private float targetY;
     private EntityDirection targetDirection;
     private boolean movingToTarget = false;
+    private boolean movementPaused = false;
     
     protected EntityState state = EntityState.IDLE;
     protected EntityDirection direction = EntityDirection.DOWN;
     protected float stateTime = 0f;
-    
-    protected boolean hasCollision = true;
-    protected float collisionRadius = 20f;
     
     protected Entity(EntityType type, String name, float x, float y, AudioManager audioManager) {
         this.type = type;
@@ -46,7 +43,7 @@ public abstract class Entity {
         this.audioManager = audioManager;
     }
 
-    public void update(float delta, float worldWidth, float worldMinY, float worldMaxY, Array<Entity> entities) {
+    public void update(float delta, float worldWidth, float worldMinY, float worldMaxY) {
     	if (state == EntityState.SLASHING) {
             stateTime += delta;
             if (stateTime >= UnitAssets.getSlashDuration()) {
@@ -59,13 +56,13 @@ public abstract class Entity {
             	finishAttack();
             }
         }
-    	else if (state == EntityState.WALKING || movingToTarget) {
+    	else if (state == EntityState.WALKING || (movingToTarget && !movementPaused)) {
     	    stateTime += delta;
 
     	    if (movingToTarget) {
-    	        moveTowardsTarget(delta, worldWidth, worldMinY, worldMaxY, entities);
-    	    } else if (state == EntityState.WALKING) {
-    	        move(delta, worldWidth, worldMinY, worldMaxY, entities);
+    	        moveTowardsTarget(delta, worldWidth, worldMinY, worldMaxY);
+    	    } else {
+    	        move(delta, worldWidth, worldMinY, worldMaxY);
     	    }
     	}
     }
@@ -111,6 +108,7 @@ public abstract class Entity {
 	    this.targetX = targetX;
 	    this.targetY = targetY;
 	    this.targetDirection = targetDirection;
+	    movementPaused = false;
 	    
 	    // Calculate the distance to the target position
 	    float dx = targetX - x;
@@ -128,7 +126,7 @@ public abstract class Entity {
 	    setState(EntityState.WALKING);
 	}
 	
-	private void moveTowardsTarget(float delta, float worldWidth, float worldMinY, float worldMaxY, Array<Entity> entities) {
+	private void moveTowardsTarget(float delta, float worldWidth, float worldMinY, float worldMaxY) {
 		float dx = targetX - x;
 		float dy = targetY - y;
 
@@ -138,36 +136,22 @@ public abstract class Entity {
 
 		// If the distance to the target is less than or equal to the movement distance, snap to the target position
 		if (distance <= movement || distance == 0f) {
-			if (canMoveTo(targetX, targetY, entities)) {
-				x = targetX;
-				y = targetY;
+			x = targetX;
+			y = targetY;
 
-				keepInsideWorldHeight(worldMinY, worldMaxY);
+			keepInsideWorldHeight(worldMinY, worldMaxY);
 
-				movingToTarget = false;
-				setDirection(targetDirection);
-				setIdle();
-			}
-			
+			movingToTarget = false;
+			setDirection(targetDirection);
+			setIdle();
 			return;
 		}
 
 		float directionX = dx / distance;
 		float directionY = dy / distance;
 
-		float nextX = x + directionX * movement;
-		float nextY = y + directionY * movement;
-
-		if (canMoveTo(nextX, nextY, entities)) {
-		    x = nextX;
-		    y = nextY;
-
-		    if (state != EntityState.WALKING) {
-		        setState(EntityState.WALKING);
-		    }
-		} else {
-		    setIdle();
-		}
+		x += directionX * movement;
+		y += directionY * movement;
 		
 		// Face whichever direction has the greater movement component.
 		if (Math.abs(dx) > Math.abs(dy)) {
@@ -179,83 +163,38 @@ public abstract class Entity {
 		keepInsideWorldHeight(worldMinY, worldMaxY);
 	}
 
-	private void move(float delta, float worldWidth, float worldMinY, float worldMaxY, Array<Entity> entities) {
+	public boolean hasReachedTarget() {
+		if (!movingToTarget) {
+			return true;
+		}
 
-		float nextX = x;
-		float nextY = y;
+		float dx = targetX - x;
+		float dy = targetY - y;
+
+		return dx * dx + dy * dy < 1f;
+	}
+	
+	private void move(float delta, float worldWidth, float worldMinY, float worldMaxY) {
 		float distance = speed * delta;
 
-		switch (direction) {
-			case UP:
-				nextY += distance;
-				break;
-			case DOWN:
-				nextY -= distance;
-				break;
-			case LEFT:
-				nextX -= distance;
-				break;
-			case RIGHT:
-				nextX += distance;
-				break;
-		}
-
-		if (canMoveTo(nextX, nextY, entities)) {
-			x = nextX;
-			y = nextY;
-		} else {
-			setIdle();
-		}
-
-		keepInsideWorld(worldWidth, worldMinY, worldMaxY);
+	    switch (direction) {
+	        case UP:
+	            y += distance;
+	            break;
+	        case DOWN:
+	            y -= distance;
+	            break;
+	        case LEFT:
+	            x -= distance;
+	            break;
+	        case RIGHT:
+	            x += distance;
+	            break;
+	    }
+	    
+	    keepInsideWorld(worldWidth, worldMinY, worldMaxY);
 	}
-	
-	/**
-	 * Checks if the entity can move to the specified position without colliding with other entities.
-	 *
-	 * @param nextX The x-coordinate of the next position.
-	 * @param nextY The y-coordinate of the next position.
-	 * @param entities The list of all entities in the game world.
-	 * @return true if the entity can move to the specified position, false otherwise.
-	 */
-	private boolean canMoveTo(float nextX, float nextY, Array<Entity> entities) {
-		float centerX = nextX + width / 2f;
-		float centerY = nextY + height / 2f;
-
-		for (int i = 0; i < entities.size; i++) {
-			Entity other = entities.get(i);
-			
-			// Don't check against yourself or dead entities.
-			if (other == this || !other.isAlive() || !other.hasCollision()) {
-				continue;
-			}
-
-			float otherCenterX = other.x + other.width / 2f;
-			float otherCenterY = other.y + other.height / 2f;
-
-			float dx = centerX - otherCenterX;
-			float dy = centerY - otherCenterY;
-
-			float minimumDistance = collisionRadius + other.collisionRadius;
-			float minimumDistanceSquared = minimumDistance * minimumDistance;
-
-			// Distance at the current position.
-			float currentDX = x + width / 2f - otherCenterX;
-			float currentDY = y + height / 2f - otherCenterY;
-
-			float currentDistanceSquared = currentDX * currentDX + currentDY * currentDY;
-
-			// Distance at the proposed position.
-			float nextDistanceSquared = dx * dx + dy * dy;
-
-			if (nextDistanceSquared < minimumDistanceSquared && nextDistanceSquared <= currentDistanceSquared) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-	
+		
 	protected void keepInsideWorld(float worldWidth, float worldMinY, float worldMaxY) {		
 	    x = Math.max(0f, Math.min(x, worldWidth - width));
 	    y = Math.max(worldMinY, Math.min(y, worldMaxY - height));
@@ -382,11 +321,18 @@ public abstract class Entity {
 		this.y = y;
 	}
 	
-	public boolean hasCollision() {
-	    return hasCollision;
+	public void pauseMovement() {
+		movementPaused = true;
+		setIdle();
 	}
-	
-	public float getCollisionRadius() {
-	    return collisionRadius;
+
+	public void resumeMovement() {
+		if (movementPaused) {
+			movementPaused = false;
+
+			if (movingToTarget) {
+				setState(EntityState.WALKING);
+			}
+		}
 	}
 }
