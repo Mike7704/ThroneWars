@@ -262,8 +262,6 @@ public class GameScreen extends ScreenAdapter {
 
 	private void update(float delta) {
 		updateUnits();
-		updateUnitCombat(playerUnits, opponentUnits, currentPlayerUnitCommand);
-		updateUnitCombat(opponentUnits, playerUnits, currentOpponentUnitCommand);
 
 	    for (Entity entity : entities) {
 	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y);
@@ -273,58 +271,52 @@ public class GameScreen extends ScreenAdapter {
 	}
 
 	/**
-	 * Updates the player and opponent units to move to their target.
+	 * Updates the orders and combat state of both player and opponent units.
 	 */
 	private void updateUnits() {
-		for (EntityUnit unit : playerUnits) {
-			// Unit is controlled by the player.
-			if (unit == player) {
-				continue;
-			}
-
-			// Only issue new orders when the command changes.
-			if (unit.getAssignedCommand() == currentPlayerUnitCommand) {
-				continue;
-			}
-
-			releaseAssignedWaypoint(unit);
-
-			switch (currentPlayerUnitCommand) {
-				case RETREAT:
-					assignWaypoint(unit, playerRetreatFormation, EntityDirection.RIGHT, currentPlayerUnitCommand);
-					break;
-					
-	            case DEFEND:
-	                assignWaypoint(unit, playerDefenceFormation, EntityDirection.RIGHT, currentPlayerUnitCommand);
-	                break;	
-	
-	            case ATTACK:
-	            	assignWaypoint(unit, playerAttackFormation, EntityDirection.RIGHT, currentPlayerUnitCommand);
-	                break;
-	        }
-		}
+		updateUnitOrders(playerUnits, currentPlayerUnitCommand, playerRetreatFormation, playerDefenceFormation,
+				playerAttackFormation, EntityDirection.RIGHT);
+		updateUnitOrders(opponentUnits, currentOpponentUnitCommand, opponentRetreatFormation, opponentDefenceFormation,
+				opponentAttackFormation, EntityDirection.LEFT);
 		
-		for (EntityUnit unit : opponentUnits) {
-			// Only issue new orders when the command changes.
-			if (unit.getAssignedCommand() == currentOpponentUnitCommand) {
+		updateUnitCombat(playerUnits, opponentUnits, currentPlayerUnitCommand);
+		updateUnitCombat(opponentUnits, playerUnits, currentOpponentUnitCommand);
+	}
+	
+	/**
+	 * Updates unit movement orders when their assigned command changes.
+	 *
+	 * @param units The units receiving orders.
+	 * @param command The current command.
+	 * @param retreatFormation The retreat formation.
+	 * @param defenceFormation The defensive formation.
+	 * @param attackFormation The attack formation.
+	 * @param direction The direction units should face when reaching their waypoints.
+	 */
+	private void updateUnitOrders(Array<EntityUnit> units, UnitCommand command, WaypointFormation retreatFormation,
+			WaypointFormation defenceFormation, WaypointFormation attackFormation, EntityDirection direction) {
+
+		for (EntityUnit unit : units) {
+			// Unit is controlled by the player or dead.
+			if (unit == player || !unit.isAlive()) {
 				continue;
 			}
 
-			releaseAssignedWaypoint(unit);
+			// Only issue new orders when the command changes.
+			if (unit.getAssignedCommand() == command) {
+				continue;
+			}
 
-			switch (currentOpponentUnitCommand) {
-				case RETREAT:
-					assignWaypoint(unit, opponentRetreatFormation, EntityDirection.LEFT, currentOpponentUnitCommand);
-					break;
-					
-	            case DEFEND:
-	                assignWaypoint(unit, opponentDefenceFormation, EntityDirection.LEFT, currentOpponentUnitCommand);
-	                break;	
-	
-	            case ATTACK:
-	            	assignWaypoint(unit, opponentAttackFormation, EntityDirection.LEFT, currentOpponentUnitCommand);
-	                break;
-	        }
+			WaypointFormation formation;
+
+			switch (command) {
+				case RETREAT: formation = retreatFormation; break;
+				case DEFEND: formation = defenceFormation; break;
+				case ATTACK: formation = attackFormation; break;
+				default: continue;
+			}
+
+			assignWaypoint(unit, formation, direction, command);
 		}
 	}
 	
@@ -343,6 +335,8 @@ public class GameScreen extends ScreenAdapter {
 			return false;
 		}
 
+		releaseAssignedWaypoint(unit);
+		
 		waypoint.assign(unit);
 		unit.setAssignedWaypoint(waypoint);
 		unit.setAssignedCommand(unitCommand);
