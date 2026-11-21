@@ -7,14 +7,16 @@ import com.thronewars.entities.EntityUnit;
  */
 public class Waypoint {
 
-    private final float x;
-    private final float y;
+    private float x;
+    private float y;
+    private final int column;
 
     private EntityUnit occupant;
 
-    public Waypoint(float x, float y) {
+    public Waypoint(float x, float y, int column) {
         this.x = x;
         this.y = y;
+        this.column = column;
     }
 
     public boolean isAvailable() {
@@ -22,7 +24,7 @@ public class Waypoint {
     }
 
     public boolean assign(EntityUnit unit) {
-        if (!isAvailable()) {
+        if (unit == null || !isAvailable()) {
             return false;
         }
 
@@ -34,12 +36,24 @@ public class Waypoint {
         occupant = null;
     }
 
+    public void setX(float x) {
+        this.x = x;
+    }
+    
     public float getX() {
         return x;
+    }
+    
+    public void setY(float y) {
+        this.y = y;
     }
 
     public float getY() {
         return y;
+    }
+    
+    public int getColumn() {
+        return column;
     }
 
     public EntityUnit getOccupant() {

@@ -57,7 +57,7 @@ public class GameScreen extends ScreenAdapter {
 	private Entity player;
 	
 	private UnitCommand currentPlayerUnitCommand = UnitCommand.DEFEND;
-	private UnitCommand currentOpponentUnitCommand = UnitCommand.DEFEND;
+	private UnitCommand currentOpponentUnitCommand = UnitCommand.ATTACK;
 	
 	private WaypointFormation playerRetreatFormation;
 	private WaypointFormation playerDefenceFormation;
@@ -274,6 +274,14 @@ public class GameScreen extends ScreenAdapter {
 	 * Updates the orders and combat state of both player and opponent units.
 	 */
 	private void updateUnits() {
+		if (currentPlayerUnitCommand == UnitCommand.ATTACK) {
+			updateAttackFormation(playerUnits, opponentUnits, playerAttackFormation, EntityDirection.RIGHT);
+		}
+
+		if (currentOpponentUnitCommand == UnitCommand.ATTACK) {
+			updateAttackFormation(opponentUnits, playerUnits, opponentAttackFormation, EntityDirection.LEFT);
+		}
+		
 		updateUnitOrders(playerUnits, currentPlayerUnitCommand, playerRetreatFormation, playerDefenceFormation,
 				playerAttackFormation, EntityDirection.RIGHT);
 		updateUnitOrders(opponentUnits, currentOpponentUnitCommand, opponentRetreatFormation, opponentDefenceFormation,
@@ -317,6 +325,74 @@ public class GameScreen extends ScreenAdapter {
 			}
 
 			assignWaypoint(unit, formation, direction, command);
+		}
+	}
+	
+	/**
+	 * Updates the attack formation for the given units based on the nearest enemy.
+	 *
+	 * @param units The units to update.
+	 * @param enemies The potential enemy units.
+	 * @param formation The waypoint formation to use for the attack.
+	 * @param direction The direction units should face when moving to the waypoints.
+	 */
+	private void updateAttackFormation(Array<EntityUnit> units, Array<EntityUnit> enemies, WaypointFormation formation,
+			EntityDirection direction) {
+
+		EntityUnit closestEnemy = null;
+		EntityUnit closestUnit = null;
+		float closestDistance = Float.MAX_VALUE;
+
+		int frontColumn = formation.getColumns() - 1;
+
+		for (EntityUnit unit : units) {
+			if (unit == player || !unit.isAlive())
+				continue;
+
+			Waypoint waypoint = unit.getAssignedWaypoint();
+
+			if (waypoint == null || waypoint.getColumn() != frontColumn)
+				continue;
+
+			EntityUnit enemy = findNearestEnemy(unit, enemies);
+			if (enemy == null)
+				continue;
+
+			float distance = getDistanceSquared(unit, enemy);
+
+			if (distance < closestDistance) {
+				closestDistance = distance;
+				closestEnemy = enemy;
+				closestUnit = unit;
+			}
+		}
+
+		if (closestEnemy == null || closestUnit == null)
+			return;
+
+		float attackRange = closestUnit.getAttackRange();
+		float frontX;
+
+		if (direction == EntityDirection.RIGHT) {
+		    frontX = closestEnemy.getCenterX() - attackRange - closestUnit.getWidth() / 2f;
+		} else {
+		    frontX = closestEnemy.getCenterX() + attackRange - closestUnit.getWidth() / 2f;
+		}
+
+		formation.setFrontColumnX(frontX);
+
+		// Update movement targets of units assigned to the attack formation.
+		for (EntityUnit unit : units) {
+			if (unit == player || !unit.isAlive())
+				continue;
+			if (unit.getAssignedCommand() != UnitCommand.ATTACK)
+				continue;
+
+			Waypoint waypoint = unit.getAssignedWaypoint();
+
+			if (waypoint != null) {
+				unit.updateMoveTarget(waypoint.getX(), waypoint.getY());
+			}
 		}
 	}
 	
@@ -412,10 +488,7 @@ public class GameScreen extends ScreenAdapter {
 				continue;
 			}
 
-			float dx = enemy.getX() - unit.getX();
-			float dy = enemy.getY() - unit.getY();
-
-			float distance = dx * dx + dy * dy;
+			float distance = getDistanceSquared(unit, enemy);
 
 			if (distance < nearestDistance) {
 				nearestDistance = distance;
@@ -433,12 +506,22 @@ public class GameScreen extends ScreenAdapter {
 	 * @return true if the unit is within attack range of the enemy; false otherwise.
 	 */
 	private boolean isWithinAttackRange(EntityUnit unit, EntityUnit enemy) {
-		float dx = enemy.getX() - unit.getX();
-		float dy = enemy.getY() - unit.getY();
+	    float attackRange = unit.getAttackRange();
 
-		float distanceSquared = dx * dx + dy * dy;
+	    return getDistanceSquared(unit, enemy) <= attackRange * attackRange;
+	}
+	
+	/**
+	 * Calculates the squared distance between two units.
+	 * @param unit1 The first unit.
+	 * @param unit2 The second unit.
+	 * @return The squared distance between the two units.
+	 */
+	private float getDistanceSquared(EntityUnit unit1, EntityUnit unit2) {
+		float dx = unit2.getCenterX() - unit1.getCenterX();
+		float dy = unit2.getCenterY() - unit1.getCenterY();
 
-		return distanceSquared <= unit.getAttackRange() * unit.getAttackRange();
+		return dx * dx + dy * dy;
 	}
 	
 	private void draw(float delta) {

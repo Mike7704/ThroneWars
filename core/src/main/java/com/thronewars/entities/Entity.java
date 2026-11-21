@@ -162,6 +162,33 @@ public abstract class Entity {
 
 		keepInsideWorldHeight(worldMinY, worldMaxY);
 	}
+	
+	/**
+	 * Updates the current movement destination without changing the entity's paused state.
+	 */
+	public void updateMoveTarget(float targetX, float targetY) {
+		this.targetX = targetX;
+		this.targetY = targetY;
+
+		float dx = targetX - x;
+		float dy = targetY - y;
+
+		if (dx * dx + dy * dy < 1f) {
+			movingToTarget = false;
+
+			if (!movementPaused) {
+				setIdle();
+			}
+
+			return;
+		}
+
+		movingToTarget = true;
+
+		if (!movementPaused) {
+			setState(EntityState.WALKING);
+		}
+	}
 
 	public boolean hasReachedTarget() {
 		if (!movingToTarget) {
@@ -195,6 +222,21 @@ public abstract class Entity {
 	    keepInsideWorld(worldWidth, worldMinY, worldMaxY);
 	}
 		
+	public void pauseMovement() {
+		movementPaused = true;
+		setIdle();
+	}
+
+	public void resumeMovement() {
+		if (movementPaused) {
+			movementPaused = false;
+
+			if (movingToTarget) {
+				setState(EntityState.WALKING);
+			}
+		}
+	}
+	
 	protected void keepInsideWorld(float worldWidth, float worldMinY, float worldMaxY) {		
 	    x = Math.max(0f, Math.min(x, worldWidth - width));
 	    y = Math.max(worldMinY, Math.min(y, worldMaxY - height));
@@ -321,18 +363,27 @@ public abstract class Entity {
 		this.y = y;
 	}
 	
-	public void pauseMovement() {
-		movementPaused = true;
-		setIdle();
+	public float getWidth() {
+		return width;
+	}
+	
+	public void setWidth(float width) {
+		this.width = width;
+	}
+	
+	public float getHeight() {
+		return height;
+	}
+	
+	public void setHeight(float height) {
+		this.height = height;
+	}
+	
+	public float getCenterX() {
+	    return x + width / 2f;
 	}
 
-	public void resumeMovement() {
-		if (movementPaused) {
-			movementPaused = false;
-
-			if (movingToTarget) {
-				setState(EntityState.WALKING);
-			}
-		}
+	public float getCenterY() {
+	    return y + height / 2f;
 	}
 }
