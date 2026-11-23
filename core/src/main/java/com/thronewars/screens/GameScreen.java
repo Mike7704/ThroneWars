@@ -464,12 +464,25 @@ public class GameScreen extends ScreenAdapter {
 			EntityUnit enemy = findNearestEnemy(unit, enemies);
 
 			if (enemy != null && isWithinAttackRange(unit, enemy)) {
-				unit.setEnemyTarget(enemy);
-				unit.pauseMovement();
-			} else {
-				unit.setEnemyTarget(null);
-				unit.resumeMovement();
-			}
+	            unit.setEnemyTarget(enemy);
+	            unit.pauseMovement();
+
+	            // Face the enemy before attacking.
+	            float dx = enemy.getCenterX() - unit.getCenterX();
+	            float dy = enemy.getCenterY() - unit.getCenterY();
+
+	            if (Math.abs(dx) > Math.abs(dy)) {
+	                unit.setDirection(dx > 0 ? EntityDirection.RIGHT : EntityDirection.LEFT);
+	            } else {
+	                unit.setDirection(dy > 0 ? EntityDirection.UP : EntityDirection.DOWN);
+	            }
+
+	            unit.attack();
+	        }
+			else {
+	            unit.setEnemyTarget(null);
+	            unit.resumeMovement();
+	        }
 		}
 	}
 	
