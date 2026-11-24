@@ -14,7 +14,8 @@ public class JonSnow extends EntityUnit {
 
     private static final String NAME = "Jon Snow";
     private static final float SPEED = 200f;
-    private static final float MAX_HEALTH = 100f;
+    private static final float MAX_HEALTH = 125f;
+	private static final float ATTACK_DAMAGE = 50f;
     private static final int COST = 100;
 
     public JonSnow(UnitAssets unitAssets, float x, float y, AudioManager audioManager) {
@@ -23,6 +24,7 @@ public class JonSnow extends EntityUnit {
         speed = SPEED;
         maxHealth = MAX_HEALTH;
         health = maxHealth;
+		attackDamage = ATTACK_DAMAGE;
         cost = COST;
     }
 }

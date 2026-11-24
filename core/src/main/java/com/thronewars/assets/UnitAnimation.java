@@ -6,7 +6,7 @@ package com.thronewars.assets;
 public enum UnitAnimation {
     IDLE,
     WALK,
-    HURT,
+    DEATH,
     SLASH,
     THRUST,
     BACKSLASH,

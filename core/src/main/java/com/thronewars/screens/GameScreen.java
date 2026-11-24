@@ -519,9 +519,10 @@ public class GameScreen extends ScreenAdapter {
 	 * @return true if the unit is within attack range of the enemy; false otherwise.
 	 */
 	private boolean isWithinAttackRange(EntityUnit unit, EntityUnit enemy) {
-	    float attackRange = unit.getAttackRange();
+		float attackRange = unit.getAttackRange();
+		float tolerance = 5f;
 
-	    return getDistanceSquared(unit, enemy) <= attackRange * attackRange;
+		return getDistanceSquared(unit, enemy) <= (attackRange + tolerance) * (attackRange + tolerance);
 	}
 	
 	/**

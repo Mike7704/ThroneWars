@@ -39,6 +39,7 @@ public abstract class EntityUnit extends Entity {
 		switch (state) {
 			case IDLE: 		animation = UnitAnimation.IDLE; break;
 			case WALKING: 	animation = UnitAnimation.WALK; break;
+			case DEAD:      animation = UnitAnimation.DEATH; break;
 			case SLASHING:	animation = UnitAnimation.SLASH; break;
 			case THRUSTING:	animation = UnitAnimation.THRUST; break;
 			default: 		animation = UnitAnimation.IDLE;

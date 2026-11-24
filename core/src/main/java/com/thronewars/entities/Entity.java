@@ -18,6 +18,7 @@ public abstract class Entity {
     protected float speed = 200f;
     protected float health = 10f;
     protected float maxHealth = 10f;
+    protected float attackDamage = 10f;
     protected int cost = 0;
 	
 	protected float x;
@@ -44,7 +45,10 @@ public abstract class Entity {
     }
 
     public void update(float delta, float worldWidth, float worldMinY, float worldMaxY) {
-    	if (state == EntityState.SLASHING) {
+    	if (state == EntityState.DEAD) {
+            stateTime += delta;
+        }
+    	else if (state == EntityState.SLASHING) {
             stateTime += delta;
             if (stateTime >= UnitAssets.getSlashDuration()) {
             	finishAttack();
@@ -81,6 +85,10 @@ public abstract class Entity {
 	}
 	
 	public void attack() {
+		if (!isAlive()) {
+			return;
+		}
+		 
 		if (state == EntityState.IDLE || state == EntityState.WALKING) {
 			if (RandomUtils.randomInt(0, 1) == 1) {
 				setState(EntityState.SLASHING);	
@@ -97,11 +105,18 @@ public abstract class Entity {
 	}
 	
 	public void takeDamage(float damage) {
-		if (damage <= 0) {
+		if (!isAlive()) {
 			return;
 		}
 
 		health = Math.max(0, health - damage);
+
+		if (health <= 0) {
+			setState(EntityState.DEAD);
+			setDirection(EntityDirection.DOWN);
+			movementPaused = true;
+			movingToTarget = false;
+		}
 	}
 	
 	public void moveTo(float targetX, float targetY, EntityDirection targetDirection) {
@@ -337,6 +352,14 @@ public abstract class Entity {
 
 	public void setMaxHealth(float maxHealth) {
 		this.maxHealth = Math.max(0, maxHealth);
+	}
+	
+	public float getAttackDamage() {
+		return attackDamage;
+	}
+
+	public void setAttackDamage(float attackDamage) {
+		this.attackDamage = attackDamage;
 	}
 
 	public int getCost() {

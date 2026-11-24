@@ -14,7 +14,7 @@ public final class UnitDefinitions {
 	        "jon-snow",
 	        UnitAnimation.IDLE,
 	        UnitAnimation.WALK,
-	        //UnitAnimation.HURT,
+	        UnitAnimation.DEATH,
 	        UnitAnimation.SLASH,
 	        UnitAnimation.THRUST
 	        //UnitAnimation.BACKSLASH
@@ -25,7 +25,7 @@ public final class UnitDefinitions {
 	        "greybeard",
 	        UnitAnimation.IDLE,
 	        UnitAnimation.WALK,
-	        //UnitAnimation.HURT,
+	        UnitAnimation.DEATH,
 	        UnitAnimation.SLASH,
 	        UnitAnimation.THRUST
 	        //UnitAnimation.BACKSLASH
@@ -36,7 +36,7 @@ public final class UnitDefinitions {
 	        "greybeard", // "lannister-knight",
 	        UnitAnimation.IDLE,
 	        UnitAnimation.WALK,
-	        //UnitAnimation.HURT,
+	        UnitAnimation.DEATH,
 	        UnitAnimation.SLASH,
 	        UnitAnimation.THRUST
 	        //UnitAnimation.BACKSLASH

@@ -15,6 +15,7 @@ public class LannisterKnight extends EntityUnit {
 	private static final String NAME = "Lannister Knight";
 	private static final float SPEED = 200f;
 	private static final float MAX_HEALTH = 100f;
+	private static final float ATTACK_DAMAGE = 25f;
     private static final int COST = 50;
 
 	public LannisterKnight(UnitAssets unitAssets, float x, float y, AudioManager audioManager) {
@@ -23,6 +24,7 @@ public class LannisterKnight extends EntityUnit {
 		speed = SPEED;
 		maxHealth = MAX_HEALTH;
 		health = maxHealth;
+		attackDamage = ATTACK_DAMAGE;
 		cost = COST;
 	}
 }

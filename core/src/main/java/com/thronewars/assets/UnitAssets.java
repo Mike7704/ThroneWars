@@ -23,6 +23,9 @@ public class UnitAssets {
     private static final int WALK_FRAME_COUNT = 8;
     private static final float WALK_FRAME_DURATION = 0.1f; // Seconds
     
+    private static final int DEATH_FRAME_COUNT = 6;
+    private static final float DEATH_FRAME_DURATION = 0.1f; // Seconds
+    
     private static final int SLASH_FRAME_COUNT = 6;
     private static final float SLASH_FRAME_DURATION = 0.1f; // Seconds
     
@@ -63,7 +66,11 @@ public class UnitAssets {
 					animations.put(animation, loadAnimations(texture, FRAME_SIZE_64, FRAME_SIZE_64,
 							WALK_FRAME_COUNT, WALK_FRAME_DURATION, PlayMode.LOOP));
 					break;
-	
+
+				case DEATH:
+					animations.put(animation, loadDeathAnimation(texture));
+					break;
+					
 				case SLASH:
 					animations.put(animation, loadAnimations(texture, FRAME_SIZE_192, FRAME_SIZE_192,
 							SLASH_FRAME_COUNT, SLASH_FRAME_DURATION, PlayMode.NORMAL));
@@ -98,6 +105,30 @@ public class UnitAssets {
 		return directionalAnimations;
     }
     
+	/**
+	 * Extracts the death animation frames from the death sprite sheet.
+	 * 
+	 * @param texture the death sprite sheet
+	 * @return an array of death animations ordered up, left, down, right
+	 */
+	@SuppressWarnings("unchecked")
+	private Animation<TextureRegion>[] loadDeathAnimation(Texture texture) {
+		TextureRegion[][] frames = TextureRegion.split(texture, FRAME_SIZE_64, FRAME_SIZE_64);
+
+		Animation<TextureRegion>[] directionalAnimations = new Animation[DIRECTION_COUNT];
+
+		Animation<TextureRegion> deathAnimation = new Animation<>(DEATH_FRAME_DURATION, frames[0]);
+
+		deathAnimation.setPlayMode(PlayMode.NORMAL);
+
+		// Death animation is only available facing DOWN.
+		for (int i = 0; i < DIRECTION_COUNT; i++) {
+			directionalAnimations[i] = deathAnimation;
+		}
+
+		return directionalAnimations;
+	}
+	
     /**
 	 * Splits the sprite sheet into frames and creates an animation for each direction.
 	 *
@@ -163,6 +194,10 @@ public class UnitAssets {
 		return directionalAnimations[directionIndex].getKeyFrame(stateTime);
 	}
 		
+	public static float getDeathDuration() {
+	    return DEATH_FRAME_COUNT * DEATH_FRAME_DURATION;
+	}
+	
 	public static float getSlashDuration() {
 	    return SLASH_FRAME_COUNT * SLASH_FRAME_DURATION;
 	}
