@@ -217,7 +217,7 @@ public class GameScreen extends ScreenAdapter {
 	 */
 	private void controlCharacterUnit() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-			player.attack();
+			player.attack(null);
 		}
 		else if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			player.moveUp();
@@ -267,6 +267,8 @@ public class GameScreen extends ScreenAdapter {
 	        entity.update(delta, WORLD_WIDTH, WORLD_MIN_Y, WORLD_MAX_Y);
 	    }
 
+	    removeExpiredEntities();
+	    
 	    gameHUD.updateValues();
 	}
 
@@ -305,8 +307,14 @@ public class GameScreen extends ScreenAdapter {
 			WaypointFormation defenceFormation, WaypointFormation attackFormation, EntityDirection direction) {
 
 		for (EntityUnit unit : units) {
-			// Unit is controlled by the player or dead.
-			if (unit == player || !unit.isAlive()) {
+			// Unit is controlled by the player.
+			if (unit == player) {
+				continue;
+			}
+
+			// Release the waypoint of dead units.
+			if (!unit.isAlive()) {
+				releaseAssignedWaypoint(unit);
 				continue;
 			}
 
@@ -477,7 +485,7 @@ public class GameScreen extends ScreenAdapter {
 	                unit.setDirection(dy > 0 ? EntityDirection.UP : EntityDirection.DOWN);
 	            }
 
-	            unit.attack();
+	            unit.attack(enemy);
 	        }
 			else {
 	            unit.setEnemyTarget(null);
@@ -536,6 +544,26 @@ public class GameScreen extends ScreenAdapter {
 		float dy = unit2.getCenterY() - unit1.getCenterY();
 
 		return dx * dx + dy * dy;
+	}
+	
+	/**
+	 * Removes entities that are marked for removal from the game world.
+	 */
+	private void removeExpiredEntities() {
+		for (int i = entities.size - 1; i >= 0; i--) {
+			Entity entity = entities.get(i);
+
+			if (entity.canBeRemoved()) {
+				entities.removeIndex(i);
+
+				if (entity instanceof EntityUnit) {
+					EntityUnit unit = (EntityUnit) entity;
+
+					playerUnits.removeValue(unit, true);
+					opponentUnits.removeValue(unit, true);
+				}
+			}
+		}
 	}
 	
 	private void draw(float delta) {

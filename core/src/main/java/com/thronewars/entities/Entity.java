@@ -11,6 +11,8 @@ import com.thronewars.utils.RandomUtils;
  */
 public abstract class Entity {
 
+	private static final float DEATH_REMOVE_DELAY = 5f;
+	
 	protected final AudioManager audioManager;
 	
 	protected final EntityType type;
@@ -31,6 +33,9 @@ public abstract class Entity {
     private EntityDirection targetDirection;
     private boolean movingToTarget = false;
     private boolean movementPaused = false;
+    
+    private float attackRange = 100f;
+    private EntityUnit enemyTarget;
     
     protected EntityState state = EntityState.IDLE;
     protected EntityDirection direction = EntityDirection.DOWN;
@@ -84,12 +89,13 @@ public abstract class Entity {
 		batch.draw(shadowTexture, shadowX, shadowY, shadowWidth, shadowHeight);
 	}
 	
-	public void attack() {
+	public void attack(EntityUnit enemyTarget) {
 		if (!isAlive()) {
 			return;
 		}
 		 
 		if (state == EntityState.IDLE || state == EntityState.WALKING) {
+			setEnemyTarget(enemyTarget);
 			if (RandomUtils.randomInt(0, 1) == 1) {
 				setState(EntityState.SLASHING);	
 			}
@@ -101,7 +107,11 @@ public abstract class Entity {
 	}
 	
 	protected void finishAttack() {
-	    setState(EntityState.IDLE);
+		if (enemyTarget != null && enemyTarget.isAlive()) {
+			enemyTarget.takeDamage(attackDamage);
+		}
+		setEnemyTarget(null);
+		setState(EntityState.IDLE);
 	}
 	
 	public void takeDamage(float damage) {
@@ -114,6 +124,7 @@ public abstract class Entity {
 		if (health <= 0) {
 			setState(EntityState.DEAD);
 			setDirection(EntityDirection.DOWN);
+			setEnemyTarget(null);
 			movementPaused = true;
 			movingToTarget = false;
 		}
@@ -370,6 +381,18 @@ public abstract class Entity {
 		this.cost = cost;
 	}
 	
+	public float getAttackRange() {
+	    return attackRange;
+	}
+
+	public EntityUnit getEnemyTarget() {
+	    return enemyTarget;
+	}
+
+	public void setEnemyTarget(EntityUnit enemyTarget) {
+	    this.enemyTarget = enemyTarget;
+	}
+	
 	public float getX() {
 		return x;
 	}
@@ -408,5 +431,9 @@ public abstract class Entity {
 
 	public float getCenterY() {
 	    return y + height / 2f;
+	}
+	
+	public boolean canBeRemoved() {
+	    return state == EntityState.DEAD && stateTime >= DEATH_REMOVE_DELAY;
 	}
 }
